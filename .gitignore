@@ -1,0 +1,10 @@
+# Ejecutables compilados
+server/server
+client-c/client
+
+# Archivos de logs
+*.txt
+*.log
+
+# Archivos de compilación
+*.o
