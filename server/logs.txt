@@ -1,0 +1,9 @@
+Cliente conectado: 127.0.0.1:55322
+[127.0.0.1:55322] Recibido: Hola servidor
+[127.0.0.1:55322] Enviado: OK
+Cliente conectado: 127.0.0.1:52976
+[127.0.0.1:52976] Recibido: Hola servidor P1
+[127.0.0.1:52976] Enviado: OK
+Cliente conectado: 127.0.0.1:55524
+[127.0.0.1:55524] Recibido: Hola servidor P2
+[127.0.0.1:55524] Enviado: OK
