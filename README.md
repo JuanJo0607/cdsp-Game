@@ -79,7 +79,22 @@ make --version
 git clone https://github.com/JuanJo0607/cdsp-Game.git
 cd cdsp-Game
 ```
-
+### Bajar todas las ramas del repositorio al local
+```bash
+git branch -r | grep -v '\->' | grep -v 'HEAD' | while read remote; do git checkout --track "$remote"; done
+```
+Ahora verifica si todas las ramas del repositorio se bajaron correctamente:
+```bash
+git branch 
+```
+Si todo salió bien, deberás ver algo como lo siguiente:
+```bash
+  auth-cliente-c
+  cliente-python
+  dev
+* main
+  server
+```
 ---
 
 ## Compilar el servidor
