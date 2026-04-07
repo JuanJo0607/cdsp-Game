@@ -284,15 +284,18 @@ void registrar_en_dns() {
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(5353);
-    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    
+    const char *dns_ip = getenv("DNS_SERVER");
+    if (!dns_ip) dns_ip = "127.0.0.1";
+    servaddr.sin_addr.s_addr = inet_addr(dns_ip);
+
     const char *reg = "REGISTER server.cdsp";
     sendto(sockfd, reg, strlen(reg), 0, (const struct sockaddr *)&servaddr, sizeof(servaddr));
     close(sockfd);
-    printf("DNS: Registro enviado a 127.0.0.1:5353\n");
+    printf("DNS: Registro enviado a %s:5353\n", dns_ip);
 }
 
 int main(int argc, char *argv[]) {
-    // Ignorar SIGPIPE para evitar caídas cuando un cliente se desconecta abruptamente
     signal(SIGPIPE, SIG_IGN);
 
     if (argc < 3) {

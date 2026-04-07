@@ -1,3 +1,4 @@
+import os
 import socket
 import threading
 
@@ -31,7 +32,8 @@ class CDSPClient:
             dns_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             dns_sock.settimeout(2.0)
             # En un entorno real, la IP del DNS se obtendría por DHCP o config
-            dns_sock.sendto(f"QUERY {hostname}".encode("utf-8"), ("127.0.0.1", 5353))
+            dns_host = os.environ.get("DNS_SERVER", "127.0.0.1")
+            dns_sock.sendto(f"QUERY {hostname}".encode("utf-8"), (dns_host, 5353))
 
             data, _ = dns_sock.recvfrom(1024)
             response = data.decode("utf-8")
