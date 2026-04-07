@@ -39,6 +39,8 @@ typedef struct {
     int fd;                // Socket del cliente
     char username[64];
     char rol[16];          // "atacante" o "defensor"
+    char ip[64];           // IP para logs
+    int port;              // Puerto para logs
     int x, y;              // Posición en el plano
 } Jugador;
 
@@ -56,7 +58,7 @@ typedef struct {
 // Funciones disponibles
 void game_init();
 int  game_crear_sala(char *id_out);
-int  game_unir_jugador(const char *room_id, int fd, const char *username, const char *rol, int *x_out, int *y_out);
+int  game_unir_jugador(const char *room_id, int fd, const char *username, const char *rol, const char *ip, int port, int *x_out, int *y_out);
 void game_listar_salas(char *buffer_out);
 Sala *game_buscar_sala(const char *room_id);
 void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje);
@@ -64,7 +66,7 @@ void game_desconectar_jugador(int fd);
 
 // Funciones de lógica de juego
 int  game_mover_jugador(int fd, int dx, int dy, int *nx, int *ny, char *room_id_out);
-int  game_scan_recurso(int fd, char *res_id_out, int *rx, int *ry);
+int  game_scan_recurso(int fd, char *res_id_out, int *x_out, int *y_out);
 int  game_atacar_recurso(int fd, const char *res_id, char *room_id_out);
 int  game_mitigar_recurso(int fd, const char *res_id, char *room_id_out);
 void game_obtener_estado_jugador(int fd, char *buffer_out);

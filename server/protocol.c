@@ -14,8 +14,8 @@ Mensaje parsear_mensaje(const char *texto) {
     char copia[256];
     strncpy(copia, texto, sizeof(copia) - 1);
 
-    // Eliminar el \n del final si existe
-    copia[strcspn(copia, "\n")] = '\0';
+    // Eliminar el \r y \n del final (compatibilidad Windows/Linux)
+    copia[strcspn(copia, "\r\n")] = '\0';
 
     // Separar por espacios
     char *token = strtok(copia, " ");

@@ -197,6 +197,24 @@ cat logs.txt
 
 ---
 
+## Micro-Servicio DNS (UDP)
+
+Para cumplir con el **Requerimiento 3** (sin IPs hardcodeadas), hemos implementado un mini-servidor DNS que resuelve nombres como `server.cdsp`.
+
+### Cómo usar el DNS
+1. Compila los servidores: `cd server && make`
+2. Ejecuta el servidor DNS en una terminal:
+   ```bash
+   ./dns_server 5353
+   ```
+3. Ejecuta el servidor de juego en otra terminal:
+   ```bash
+   ./server 8080 logs.txt
+   ```
+4. En el cliente Python, usa `server.cdsp` en el campo "Server Host". El cliente resolverá automáticamente la IP vía UDP antes de conectar por TCP.
+
+---
+
 ## Cliente Gráfico (Python)
 
 El proyecto incluye un cliente con interfaz gráfica para una experiencia de juego completa.

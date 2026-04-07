@@ -4,7 +4,11 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <time.h>
 #include "game.h"
+
+extern void registrar_log(const char *ip, int port, const char *sent_recv, const char *msg);
 
 // Estado global del juego
 static Sala salas[MAX_SALAS];
@@ -15,6 +19,7 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 void game_init() {
     memset(salas, 0, sizeof(salas));
     sala_counter = 0;
+    srand(time(NULL));
 }
 
 // Crear una nueva sala y devolver su ID en id_out
@@ -41,16 +46,24 @@ int game_crear_sala(char *id_out) {
     s->inicio_partida = time(NULL);
     snprintf(s->id, sizeof(s->id), "room_%03d", sala_counter);
 
-    // Colocar los 2 recursos críticos en posiciones fijas
+    // Colocar los 2 recursos críticos en posiciones aleatorias 
+    // Evitamos los bordes (distancia de 2 celdas)
     strncpy(s->recursos[0].id, "srv_01", sizeof(s->recursos[0].id));
-    s->recursos[0].x = 5;
-    s->recursos[0].y = 5;
+    s->recursos[0].x = rand() % (PLANO_ANCHO - 4) + 2;
+    s->recursos[0].y = rand() % (PLANO_ALTO - 4) + 2;
     s->recursos[0].estado = RECURSO_SAFE;
+    s->recursos[0].tiempo_ataque = 0;
 
     strncpy(s->recursos[1].id, "srv_02", sizeof(s->recursos[1].id));
-    s->recursos[1].x = 15;
-    s->recursos[1].y = 15;
+    s->recursos[1].x = rand() % (PLANO_ANCHO - 4) + 2;
+    s->recursos[1].y = rand() % (PLANO_ALTO - 4) + 2;
     s->recursos[1].estado = RECURSO_SAFE;
+    s->recursos[1].tiempo_ataque = 0;
+    
+    // Asegurar que no caigan en el mismo sitio
+    if (s->recursos[1].x == s->recursos[0].x && s->recursos[1].y == s->recursos[0].y) {
+        s->recursos[1].x = (s->recursos[0].x + 5) % PLANO_ANCHO;
+    }
 
     strncpy(id_out, s->id, 16);
 
@@ -60,44 +73,43 @@ int game_crear_sala(char *id_out) {
 
 // Unir un jugador a una sala existente
 // Retorna 0 si tuvo éxito, -1 si la sala no existe o está llena
-int game_unir_jugador(const char *room_id, int fd, const char *username, const char *rol, int *x_out, int *y_out) {
+int game_unir_jugador(const char *room_id, int fd, const char *username, const char *rol, const char *ip, int port, int *x_out, int *y_out) {
     pthread_mutex_lock(&mutex);
+    
+    Sala *s = game_buscar_sala(room_id);
+    if (s == NULL) {
+        pthread_mutex_unlock(&mutex);
+        return -1;
+    }
 
-    Sala *s = NULL;
-    for (int i = 0; i < MAX_SALAS; i++) {
-        if (salas[i].activa && strcmp(salas[i].id, room_id) == 0) {
-            s = &salas[i]; break;
+    // Verificar nombre duplicado en la sala
+    for (int i = 0; i < MAX_JUGADORES; i++) {
+        if (s->jugadores[i].activo && strcmp(s->jugadores[i].username, username) == 0) {
+            pthread_mutex_unlock(&mutex);
+            return -3; // 409 Conflict / Duplicado
         }
     }
 
-    if (s == NULL || s->num_jugadores >= MAX_JUGADORES) {
+    if (s->num_jugadores >= MAX_JUGADORES) {
         pthread_mutex_unlock(&mutex);
         return -1;
     }
 
-    // Buscar un slot libre para el jugador
-    int idx = -1;
-    for (int i = 0; i < MAX_JUGADORES; i++) {
-        if (!s->jugadores[i].activo) { idx = i; break; }
-    }
-
-    if (idx == -1) {
-        pthread_mutex_unlock(&mutex);
-        return -1;
-    }
-
-    Jugador *j = &s->jugadores[idx];
-    j->activo = 1;
-    j->fd     = fd;
-    j->x      = 0;
-    j->y      = 0;
-    strncpy(j->username, username, sizeof(j->username) - 1);
-    strncpy(j->rol,      rol,      sizeof(j->rol) - 1);
+    strncpy(s->jugadores[s->num_jugadores].username, username, 64);
+    s->jugadores[s->num_jugadores].fd = fd;
+    strncpy(s->jugadores[s->num_jugadores].ip, ip, 64);
+    s->jugadores[s->num_jugadores].port = port;
+    s->jugadores[s->num_jugadores].activo = 1;
+    strncpy(s->jugadores[s->num_jugadores].rol, rol, 16);
+    
+    // Coordenadas iniciales
+    s->jugadores[s->num_jugadores].x = rand() % PLANO_ANCHO;
+    s->jugadores[s->num_jugadores].y = rand() % PLANO_ALTO;
+    
+    *x_out = s->jugadores[s->num_jugadores].x;
+    *y_out = s->jugadores[s->num_jugadores].y;
+    
     s->num_jugadores++;
-
-    *x_out = j->x;
-    *y_out = j->y;
-
     pthread_mutex_unlock(&mutex);
     return 0;
 }
@@ -142,6 +154,7 @@ void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje
     for (int i = 0; i < MAX_JUGADORES; i++) {
         if (s->jugadores[i].activo && s->jugadores[i].fd != fd_emisor) {
             send(s->jugadores[i].fd, mensaje, strlen(mensaje), 0);
+            registrar_log(s->jugadores[i].ip, s->jugadores[i].port, "Enviado", mensaje);
         }
     }
 
@@ -186,6 +199,10 @@ int game_mover_jugador(int fd, int dx, int dy, int *nx, int *ny, char *room_id_o
         if (!salas[i].activa) continue;
         for (int j = 0; j < MAX_JUGADORES; j++) {
             if (salas[i].jugadores[j].activo && salas[i].jugadores[j].fd == fd) {
+                if (salas[i].estado == SALA_TERMINADA) {
+                    pthread_mutex_unlock(&mutex);
+                    return -1;
+                }
                 Jugador *player = &salas[i].jugadores[j];
                 
                 // Nuevas coordenadas
@@ -213,22 +230,25 @@ int game_mover_jugador(int fd, int dx, int dy, int *nx, int *ny, char *room_id_o
     return -1;
 }
 
-int game_scan_recurso(int fd, char *res_id_out, int *rx, int *ry) {
+int game_scan_recurso(int fd, char *res_id_out, int *x_out, int *y_out) {
     pthread_mutex_lock(&mutex);
     for (int i = 0; i < MAX_SALAS; i++) {
         if (!salas[i].activa) continue;
         for (int j = 0; j < MAX_JUGADORES; j++) {
             if (salas[i].jugadores[j].activo && salas[i].jugadores[j].fd == fd) {
+                if (salas[i].estado == SALA_TERMINADA) {
+                    pthread_mutex_unlock(&mutex);
+                    return -1;
+                }
                 Jugador *player = &salas[i].jugadores[j];
                 
-                // Ahora AMBOS pueden SCAN
                 // Vecindario de Moore (dx, dy <= 1)
                 for (int r = 0; r < MAX_RECURSOS; r++) {
                     Recurso *res = &salas[i].recursos[r];
                     if (abs(res->x - player->x) <= 1 && abs(res->y - player->y) <= 1) {
                         strncpy(res_id_out, res->id, 16);
-                        *rx = res->x;
-                        *ry = res->y;
+                        *x_out = res->x;
+                        *y_out = res->y;
                         pthread_mutex_unlock(&mutex);
                         return 0;
                     }
@@ -239,7 +259,7 @@ int game_scan_recurso(int fd, char *res_id_out, int *rx, int *ry) {
         }
     }
     pthread_mutex_unlock(&mutex);
-    return -3; // NOT IN ROOM
+    return -2;
 }
 
 int game_atacar_recurso(int fd, const char *res_id, char *room_id_out) {
@@ -248,6 +268,10 @@ int game_atacar_recurso(int fd, const char *res_id, char *room_id_out) {
         if (!salas[i].activa) continue;
         for (int j = 0; j < MAX_JUGADORES; j++) {
             if (salas[i].jugadores[j].activo && salas[i].jugadores[j].fd == fd) {
+                if (salas[i].estado == SALA_TERMINADA) {
+                    pthread_mutex_unlock(&mutex);
+                    return -1;
+                }
                 Jugador *p = &salas[i].jugadores[j];
                 
                 if (strcmp(p->rol, "atacante") != 0) {
@@ -255,6 +279,25 @@ int game_atacar_recurso(int fd, const char *res_id, char *room_id_out) {
                     return -2; // 403
                 }
                 
+                if (res_id == NULL || strlen(res_id) == 0) {
+                    for (int r = 0; r < MAX_RECURSOS; r++) {
+                        Recurso *res = &salas[i].recursos[r];
+                        if (res->x == p->x && res->y == p->y) {
+                            if (res->estado != RECURSO_SAFE) {
+                                pthread_mutex_unlock(&mutex);
+                                return -4;
+                            }
+                            res->estado = RECURSO_BAJO_ATAQUE;
+                            res->tiempo_ataque = time(NULL);
+                            strncpy(room_id_out, salas[i].id, 16);
+                            pthread_mutex_unlock(&mutex);
+                            return 0;
+                        }
+                    }
+                    pthread_mutex_unlock(&mutex);
+                    return -1;
+                }
+
                 for (int r = 0; r < MAX_RECURSOS; r++) {
                     Recurso *res = &salas[i].recursos[r];
                     if (strcmp(res->id, res_id) == 0) {
@@ -289,6 +332,10 @@ int game_mitigar_recurso(int fd, const char *res_id, char *room_id_out) {
     pthread_mutex_lock(&mutex);
     for (int i = 0; i < MAX_SALAS; i++) {
         if (!salas[i].activa) continue;
+        if (salas[i].estado == SALA_TERMINADA) {
+            pthread_mutex_unlock(&mutex);
+            return -1;
+        }
         for (int j = 0; j < MAX_JUGADORES; j++) {
             if (salas[i].jugadores[j].activo && salas[i].jugadores[j].fd == fd) {
                 Jugador *p = &salas[i].jugadores[j];
@@ -298,6 +345,25 @@ int game_mitigar_recurso(int fd, const char *res_id, char *room_id_out) {
                     return -2; // 403
                 }
                 
+                // Si res_id está vacío, buscamos por posición
+                if (res_id == NULL || strlen(res_id) == 0) {
+                    for (int r = 0; r < MAX_RECURSOS; r++) {
+                        Recurso *res = &salas[i].recursos[r];
+                        if (res->x == p->x && res->y == p->y) {
+                            if (res->estado != RECURSO_BAJO_ATAQUE) {
+                                pthread_mutex_unlock(&mutex);
+                                return -4; // ERR 411
+                            }
+                            res->estado = RECURSO_SAFE;
+                            strncpy(room_id_out, salas[i].id, 16);
+                            pthread_mutex_unlock(&mutex);
+                            return 0;
+                        }
+                    }
+                    pthread_mutex_unlock(&mutex);
+                    return -5; // No hay recurso acá (ERR 404)
+                }
+
                 for (int r = 0; r < MAX_RECURSOS; r++) {
                     Recurso *res = &salas[i].recursos[r];
                     if (strcmp(res->id, res_id) == 0) {
@@ -310,7 +376,7 @@ int game_mitigar_recurso(int fd, const char *res_id, char *room_id_out) {
                             return -4; // 411
                         }
                         
-                        res->estado = RECURSO_MITIGADO;
+                        res->estado = RECURSO_SAFE;
                         strncpy(room_id_out, salas[i].id, 16);
                         pthread_mutex_unlock(&mutex);
                         return 0;
@@ -393,6 +459,7 @@ void game_tick() {
                     for (int k = 0; k < MAX_JUGADORES; k++) {
                         if (salas[i].jugadores[k].activo) {
                             send(salas[i].jugadores[k].fd, nt, strlen(nt), 0);
+                            registrar_log(salas[i].jugadores[k].ip, salas[i].jugadores[k].port, "Enviado", nt);
                         }
                     }
                 }
@@ -410,19 +477,23 @@ void game_tick() {
             for (int k = 0; k < MAX_JUGADORES; k++) {
                 if (salas[i].jugadores[k].activo) {
                     send(salas[i].jugadores[k].fd, msg, strlen(msg), 0);
+                    registrar_log(salas[i].jugadores[k].ip, salas[i].jugadores[k].port, "Enviado", msg);
                 }
             }
+            salas[i].activa = 0; // Liberar sala
         }
 
         // Tiempo agotado? (5 minutos = 300s)
         if (difftime(now, salas[i].inicio_partida) >= 300.0) {
             salas[i].estado = SALA_TERMINADA;
-            char msg[128] = "NOTIFY GAME_OVER defensor \"Tiempo de mision agotado\"\n";
+            char msg[128] = "NOTIFY GAME_OVER defensor \"Defensa exitosa: Se acabo el tiempo\"\n";
             for (int k = 0; k < MAX_JUGADORES; k++) {
                 if (salas[i].jugadores[k].activo) {
                     send(salas[i].jugadores[k].fd, msg, strlen(msg), 0);
+                    registrar_log(salas[i].jugadores[k].ip, salas[i].jugadores[k].port, "Enviado", msg);
                 }
             }
+            salas[i].activa = 0; // Liberar sala
         }
     }
     pthread_mutex_unlock(&mutex);
