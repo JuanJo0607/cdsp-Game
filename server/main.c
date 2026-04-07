@@ -16,20 +16,23 @@ typedef struct {
     char ip[INET_ADDRSTRLEN];
     int puerto;
     FILE *log_file;
+    char rol[16];
+    char username[64];
 } ClienteInfo;
 
 // Ejecutar cada hilo — atiende a un cliente
 void *atender_cliente(void *arg) {
     ClienteInfo *cliente = (ClienteInfo *)arg;
     char buffer[BUFFER_SIZE];
-    char respuesta[256];
+    char respuesta[1024];
 
     printf("Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
     fprintf(cliente->log_file, "Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
     fflush(cliente->log_file);
 
-    // Inicializar estado del juego
-    game_init();
+    // Valores por defecto
+    strcpy(cliente->rol, "defensor");
+    strcpy(cliente->username, "anonimo");
 
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
@@ -39,6 +42,7 @@ void *atender_cliente(void *arg) {
             printf("Cliente desconectado: %s:%d\n", cliente->ip, cliente->puerto);
             fprintf(cliente->log_file, "Cliente desconectado: %s:%d\n", cliente->ip, cliente->puerto);
             fflush(cliente->log_file);
+            game_desconectar_jugador(cliente->fd);
             break;
         }
 
@@ -55,33 +59,31 @@ void *atender_cliente(void *arg) {
                 if (msg.num_params < 1) {
                     construir_error(respuesta, 400, "AUTH requiere un username");
                 } else {
-                    // Por ahora acepta cualquier usuario — aquí irá la consulta al auth server
-                    char datos[128];
-                    snprintf(datos, sizeof(datos), "\"%s\" ROLE=atacante", msg.params[0]);
-                    construir_respuesta(respuesta, "AUTH", datos);
+                    strncpy(cliente->username, msg.params[0], 63);
+                    
+                    // Lógica temporal de prefijos para asignar ROL
+                    if (strncmp(cliente->username, "atacante", 8) == 0) {
+                        strcpy(cliente->rol, "atacante");
+                    } else {
+                        strcpy(cliente->rol, "defensor");
+                    }
+
+                    snprintf(respuesta, 1024, "OK AUTH \"%s\" ROLE=%s\n", cliente->username, cliente->rol);
                 }
                 break;
 
             case VERB_QUIT:
                 construir_respuesta(respuesta, "QUIT", NULL);
                 send(cliente->fd, respuesta, strlen(respuesta), 0);
-                printf("[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
-                fprintf(cliente->log_file, "[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
-                fflush(cliente->log_file);
+                game_desconectar_jugador(cliente->fd);
                 close(cliente->fd);
                 free(cliente);
                 return NULL;
 
-            case VERB_UNKNOWN:
-            default:
-                construir_error(respuesta, 400, "Verbo desconocido");
-                break;
-
-                
             case VERB_CREATE_ROOM: {
                 char room_id[16];
                 if (game_crear_sala(room_id) == 0) {
-                    construir_respuesta(respuesta, "CREATE_ROOM", room_id);
+                    snprintf(respuesta, 256, "ROOM_CREATED %s\n", room_id);
                 } else {
                     construir_error(respuesta, 500, "No hay espacio para más salas");
                 }
@@ -89,27 +91,139 @@ void *atender_cliente(void *arg) {
             }
 
             case VERB_JOIN: {
-                if (msg.num_params < 2) {
-                    construir_error(respuesta, 400, "JOIN requiere room_id y rol");
+                if (msg.num_params < 1) {
+                    construir_error(respuesta, 400, "JOIN requiere room_id");
                     break;
                 }
                 int x, y;
-                if (game_unir_jugador(msg.params[0], cliente->fd, "jugador", msg.params[1], &x, &y) == 0) {
-                    char datos[128];
-                    snprintf(datos, sizeof(datos), "%s ROLE=%s POS=%d,%d", msg.params[0], msg.params[1], x, y);
-                    construir_respuesta(respuesta, "JOIN", datos);
+                if (game_unir_jugador(msg.params[0], cliente->fd, cliente->username, cliente->rol, &x, &y) == 0) {
+                    snprintf(respuesta, 1024, "OK JOIN %s ROLE=%s POS=%d,%d\n", msg.params[0], cliente->rol, x, y);
+                    
+                    // 1. Notificar a los demás que yo me uní (con mis coordenadas)
+                    char nt[128];
+                    snprintf(nt, 128, "NOTIFY PLAYER_JOIN %s %d %d\n", cliente->username, x, y);
+                    game_notificar_sala(msg.params[0], cliente->fd, nt);
+
+                    // 2. Enviarme a mi las posiciones de los que ya estaban (Sincronización)
+                    Sala *s = game_buscar_sala(msg.params[0]);
+                    if (s) {
+                        for (int i = 0; i < MAX_JUGADORES; i++) {
+                            if (s->jugadores[i].activo && s->jugadores[i].fd != cliente->fd) {
+                                char sync_msg[128];
+                                snprintf(sync_msg, 128, "NOTIFY MOVE %s %d %d\n", s->jugadores[i].username, s->jugadores[i].x, s->jugadores[i].y);
+                                send(cliente->fd, sync_msg, strlen(sync_msg), 0);
+                            }
+                        }
+                    }
                 } else {
-                    construir_error(respuesta, 404, "Sala no existe o está llena");
+                    construir_error(respuesta, 409, "Sala no existe o está llena");
                 }
                 break;
             }
 
             case VERB_LIST_ROOMS: {
-                char lista[256];
+                char lista[512];
                 game_listar_salas(lista);
-                construir_respuesta(respuesta, "LIST_ROOMS", lista);
+                snprintf(respuesta, 1024, "ROOM_LIST %s\n", lista);
                 break;
             }
+
+            case VERB_MOVE: {
+                if (msg.num_params < 2) {
+                    construir_error(respuesta, 400, "MOVE requiere dx dy");
+                    break;
+                }
+                int dx = atoi(msg.params[0]);
+                int dy = atoi(msg.params[1]);
+                int nx, ny;
+                char rid[16];
+                if (game_mover_jugador(cliente->fd, dx, dy, &nx, &ny, rid) == 0) {
+                    snprintf(respuesta, 1024, "OK MOVE %d %d\n", nx, ny);
+                    
+                    // Notificar movimiento de otros jugadores (Visibilidad mutua)
+                    char nt[128];
+                    snprintf(nt, 128, "NOTIFY MOVE %s %d %d\n", cliente->username, nx, ny);
+                    game_notificar_sala(rid, cliente->fd, nt);
+                } else {
+                    construir_error(respuesta, 401, "Autentiquese primero o entre a una sala");
+                }
+                break;
+            }
+
+            case VERB_SCAN: {
+                char res_id[16];
+                int rx, ry;
+                int res = game_scan_recurso(cliente->fd, res_id, &rx, &ry);
+                if (res == 0) {
+                    snprintf(respuesta, 1024, "SCAN_RESULT found %s %d %d\n", res_id, rx, ry);
+                } else if (res == -1) {
+                    snprintf(respuesta, 1024, "SCAN_RESULT nothing\n");
+                } else if (res == -2) {
+                    construir_error(respuesta, 403, "Solo atacantes pueden SCAN (ahora deshabilitado)");
+                } else {
+                    construir_error(respuesta, 401, "Autentiquese primero");
+                }
+                break;
+            }
+
+            case VERB_ATTACK: {
+                if (msg.num_params < 1) {
+                    construir_error(respuesta, 400, "ATTACK requiere resource_id");
+                    break;
+                }
+                char rid[16];
+                int res = game_atacar_recurso(cliente->fd, msg.params[0], rid);
+                if (res == 0) {
+                    snprintf(respuesta, 256, "OK ATTACK %s\n", msg.params[0]);
+                    char nt[128];
+                    snprintf(nt, 128, "NOTIFY ATTACK %s \"Servidor bajo ataque\"\n", msg.params[0]);
+                    game_notificar_sala(rid, cliente->fd, nt);
+                } else if (res == -2) construir_error(respuesta, 403, "Solo atacantes pueden ATTACK");
+                else if (res == -3) construir_error(respuesta, 410, "No estas en la celda del recurso");
+                else if (res == -4) construir_error(respuesta, 411, "Recurso no esta safe");
+                else construir_error(respuesta, 404, "Recurso no encontrado");
+                break;
+            }
+
+            case VERB_MITIGATE: {
+                if (msg.num_params < 1) {
+                    construir_error(respuesta, 400, "MITIGATE requiere resource_id");
+                    break;
+                }
+                char rid[16];
+                int res = game_mitigar_recurso(cliente->fd, msg.params[0], rid);
+                if (res == 0) {
+                    snprintf(respuesta, 256, "OK MITIGATE %s\n", msg.params[0]);
+                    char nt[128];
+                    snprintf(nt, 128, "NOTIFY MITIGATED %s \"Ataque mitigado\"\n", msg.params[0]);
+                    game_notificar_sala(rid, cliente->fd, nt);
+                } else if (res == -2) construir_error(respuesta, 403, "Solo defensores pueden MITIGATE");
+                else if (res == -3) construir_error(respuesta, 410, "No estas en la celda del recurso");
+                else if (res == -4) construir_error(respuesta, 411, "Recurso no bajo ataque");
+                else construir_error(respuesta, 404, "Recurso no encontrado");
+                break;
+            }
+
+            case VERB_STATUS: {
+                char st[512];
+                game_obtener_estado_jugador(cliente->fd, st);
+                if (strncmp(st, "ERR", 3) == 0) {
+                    strncpy(respuesta, st, 1024);
+                    strcat(respuesta, "\n");
+                } else {
+                    snprintf(respuesta, 1024, "GAME_STATE %s\n", st);
+                }
+                break;
+            }
+
+            case VERB_PING:
+                snprintf(respuesta, 256, "PONG\n");
+                break;
+
+            case VERB_UNKNOWN:
+            default:
+                construir_error(respuesta, 400, "Verbo desconocido");
+                break;
         }
 
         // Loggear y enviar respuesta
@@ -125,6 +239,14 @@ void *atender_cliente(void *arg) {
 }
 
 
+
+void *tick_thread_func(void *arg) {
+    while (1) {
+        sleep(1);
+        game_tick();
+    }
+    return NULL;
+}
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -162,6 +284,13 @@ int main(int argc, char *argv[]) {
     }
 
     listen(server_fd, MAX_CLIENTES);
+    game_init();
+    
+    // Lanzar hilo de monitoreo de tiempo
+    pthread_t t_tick;
+    pthread_create(&t_tick, NULL, tick_thread_func, NULL);
+    pthread_detach(t_tick);
+
     printf("Servidor escuchando en puerto %d...\n", puerto);
 
     // Bucle principal: acepta clientes indefinidamente

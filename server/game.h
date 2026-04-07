@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <pthread.h>
+#include <time.h>
 
 #define MAX_SALAS      10
 #define MAX_JUGADORES  10
@@ -13,13 +14,15 @@
 typedef enum {
     RECURSO_SAFE,
     RECURSO_BAJO_ATAQUE,
-    RECURSO_MITIGADO
+    RECURSO_MITIGADO,
+    RECURSO_COMPROMETIDO
 } EstadoRecurso;
 
 // Estados posibles de una sala
 typedef enum {
     SALA_ESPERANDO,
-    SALA_EN_JUEGO
+    SALA_EN_JUEGO,
+    SALA_TERMINADA
 } EstadoSala;
 
 // Representa un recurso crítico en el plano
@@ -27,6 +30,7 @@ typedef struct {
     char id[16];           // "srv_01", "srv_02"
     int x, y;              // Posición en el plano
     EstadoRecurso estado;
+    time_t tiempo_ataque;  // Momento en que inició el ataque
 } Recurso;
 
 // Representa un jugador conectado
@@ -46,6 +50,7 @@ typedef struct {
     Jugador jugadores[MAX_JUGADORES];
     int num_jugadores;
     Recurso recursos[MAX_RECURSOS];
+    time_t inicio_partida; // Momento en que se creó la sala
 } Sala;
 
 // Funciones disponibles
@@ -56,5 +61,14 @@ void game_listar_salas(char *buffer_out);
 Sala *game_buscar_sala(const char *room_id);
 void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje);
 void game_desconectar_jugador(int fd);
+
+// Funciones de lógica de juego
+int  game_mover_jugador(int fd, int dx, int dy, int *nx, int *ny, char *room_id_out);
+int  game_scan_recurso(int fd, char *res_id_out, int *rx, int *ry);
+int  game_atacar_recurso(int fd, const char *res_id, char *room_id_out);
+int  game_mitigar_recurso(int fd, const char *res_id, char *room_id_out);
+void game_obtener_estado_jugador(int fd, char *buffer_out);
+const char* game_obtener_rol(int fd);
+void game_tick();
 
 #endif

@@ -16,6 +16,8 @@ cdsp-game/
 │   ├── game.c
 │   ├── game.h
 │   └── Makefile
+├── client-python/
+│   └── client.py
 └── README.md
 ```
 
@@ -192,3 +194,52 @@ cat logs.txt
 
 **`nc: command not found`**  
 → Instala netcat: `sudo apt install netcat -y`
+
+---
+
+## Cliente Gráfico (Python)
+
+El proyecto incluye un cliente con interfaz gráfica para una experiencia de juego completa.
+
+### Requisitos
+- Python 3.x
+- Tkinter (usualmente incluido en Python)
+```bash
+sudo apt install python3-tk
+```
+
+
+### Cómo ejecutar el cliente
+1. Asegúrate de que el servidor esté corriendo en WSL/Linux.
+2. En Linux (o Windows), abre una terminal y navega a la carpeta del proyecto.
+3. Ejecuta:
+
+   ```bash
+   python client-python/client.py
+   ```
+
+---
+
+## Reglas del Juego 
+
+
+### 1. Ataque y Mitigación (Temporizador de 30s)
+- **Ataque**: Una vez que un atacante llega a la celda de un servidor y usa `ATTACK`, comienza una cuenta atrás de **30 segundos**.
+- **Mitigación**: El defensor recibe una notificación y debe llegar a la celda para usar `MITIGATE` antes de que se acabe el tiempo.
+- **Compromiso**: Si pasan los 30 segundos sin mitigación, el recurso se pierde (se vuelve negro en el mapa).
+
+### 2. Condición de Victoria
+- **Atacante**: Gana si logra comprometer los 2 servidores del sistema.
+- **Defensor**: Gana si logra evitar que comprometan los servidores durante **5 minutos** (Tiempo global de partida).
+
+
+---
+
+##  Notas de Desarrollo (Provisional)
+
+> [!NOTE]
+> Algunos comportamientos son **temporales**:
+> 
+> **Autenticación con prefijos**: El uso de `atacante_` o `defensor_` para asignar roles en el nombre del usuario es una medida provisional. En la versión final, el rol se recibirá directamente desde el servicio de identidad externo.
+
+

@@ -31,6 +31,7 @@ Mensaje parsear_mensaje(const char *texto) {
     else if (strcmp(token, "ATTACK")      == 0) msg.verbo = VERB_ATTACK;
     else if (strcmp(token, "MITIGATE")    == 0) msg.verbo = VERB_MITIGATE;
     else if (strcmp(token, "STATUS")      == 0) msg.verbo = VERB_STATUS;
+    else if (strcmp(token, "PING")        == 0) msg.verbo = VERB_PING;
     else if (strcmp(token, "QUIT")        == 0) msg.verbo = VERB_QUIT;
     else msg.verbo = VERB_UNKNOWN;
 
