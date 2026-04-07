@@ -139,6 +139,13 @@ Servidor escuchando en puerto 8080...
 ```
 
 ---
+## Activa el DNS
+
+```bash
+./dns_server 5353
+```
+
+
 
 ## Probar el servidor
 
