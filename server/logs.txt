@@ -7,3 +7,29 @@ Cliente conectado: 127.0.0.1:52976
 Cliente conectado: 127.0.0.1:55524
 [127.0.0.1:55524] Recibido: Hola servidor P2
 [127.0.0.1:55524] Enviado: OK
+Cliente conectado: 127.0.0.1:42596
+Cliente desconectado: 127.0.0.1:42596
+Cliente conectado: 127.0.0.1:51612
+Cliente desconectado: 127.0.0.1:51612
+Cliente conectado: 127.0.0.1:38300
+[127.0.0.1:38300] Recibido: AUTH andre[127.0.0.1:38300] Enviado: OK AUTH "andre" ROLE=atacante
+Cliente desconectado: 127.0.0.1:38300
+Cliente conectado: 127.0.0.1:52096
+[127.0.0.1:52096] Recibido: AUTH andre[127.0.0.1:52096] Enviado: OK AUTH "andre" ROLE=atacante
+[127.0.0.1:52096] Recibido: MOVE 2 3[127.0.0.1:52096] Enviado: ERR 400 "Verbo desconocido"
+Cliente desconectado: 127.0.0.1:52096
+Cliente conectado: 127.0.0.1:55982
+[127.0.0.1:55982] Recibido: AUTH andre[127.0.0.1:55982] Enviado: OK AUTH "andre" ROLE=atacante
+[127.0.0.1:55982] Recibido: MOVE 2 3[127.0.0.1:55982] Enviado: OK MOVE POS=2,3Cliente desconectado: 127.0.0.1:55982
+Cliente conectado: 127.0.0.1:41678
+[127.0.0.1:41678] Recibido: AUTH andre[127.0.0.1:41678] Enviado: OK AUTH "andre" ROLE=atacante
+[127.0.0.1:41678] Recibido: MOVE 2 3[127.0.0.1:41678] Enviado: OK MOVE POS=2,3[127.0.0.1:41678] Recibido: ATTACK enemigo1[127.0.0.1:41678] Enviado: OK ATTACK TARGET=enemigo1Cliente desconectado: 127.0.0.1:41678
+Cliente conectado: 127.0.0.1:37408
+[127.0.0.1:37408] Recibido: AUTH andre[127.0.0.1:37408] Enviado: OK AUTH "andre" ROLE=atacante
+[127.0.0.1:37408] Recibido: MOVE 2 3[127.0.0.1:37408] Enviado: OK MOVE POS=2,3[127.0.0.1:37408] Recibido: ATTACK enemigo1[127.0.0.1:37408] Enviado: OK ATTACK TARGET=enemigo1[127.0.0.1:37408] Recibido: SCAN zona1[127.0.0.1:37408] Enviado: OK SCAN AREA=zona1Cliente desconectado: 127.0.0.1:37408
+Cliente conectado: 127.0.0.1:52500
+[127.0.0.1:52500] Recibido: AUTH andre[127.0.0.1:52500] Enviado: OK AUTH "andre" ROLE=atacante
+[127.0.0.1:52500] Recibido: MOVE 2 3[127.0.0.1:52500] Enviado: OK MOVE POS=2,3[127.0.0.1:52500] Recibido: ATTACK enemigo1[127.0.0.1:52500] Enviado: OK ATTACK TARGET=enemigo1[127.0.0.1:52500] Recibido: SCAN zona1[127.0.0.1:52500] Enviado: OK SCAN AREA=zona1[127.0.0.1:52500] Recibido: MITIGATE enemigo1[127.0.0.1:52500] Enviado: OK MITIGATE TARGET=enemigo1Cliente desconectado: 127.0.0.1:52500
+Cliente conectado: 127.0.0.1:41030
+[127.0.0.1:41030] Recibido: AUTH andre[127.0.0.1:41030] Enviado: OK AUTH "andre" ROLE=atacante
+[127.0.0.1:41030] Recibido: MOVE 2 3[127.0.0.1:41030] Enviado: OK MOVE POS=2,3[127.0.0.1:41030] Recibido: ATTACK enemigo1[127.0.0.1:41030] Enviado: OK ATTACK TARGET=enemigo1[127.0.0.1:41030] Recibido: SCAN zona1[127.0.0.1:41030] Enviado: OK SCAN AREA=zona1[127.0.0.1:41030] Recibido: MITIGATE enemigo1[127.0.0.1:41030] Enviado: OK MITIGATE TARGET=enemigo1[127.0.0.1:41030] Recibido: STATUS[127.0.0.1:41030] Enviado: OK STATUS ROLE=atacante POS=2,3Cliente desconectado: 127.0.0.1:41030

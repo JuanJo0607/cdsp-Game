@@ -77,7 +77,53 @@ void *atender_cliente(void *arg) {
                 construir_error(respuesta, 400, "Verbo desconocido");
                 break;
 
-                
+case VERB_MOVE: {
+    if (msg.num_params < 2) {
+        construir_error(respuesta, 400, "MOVE requiere coordenadas X Y");
+        break;
+    }
+    int x = atoi(msg.params[0]);
+    int y = atoi(msg.params[1]);
+    snprintf(respuesta, sizeof(respuesta), "OK MOVE POS=%d,%d", x, y);
+    break;
+}
+
+case VERB_ATTACK: {
+    if (msg.num_params < 1) {
+        construir_error(respuesta, 400, "ATTACK requiere un objetivo");
+        break;
+    }
+    char *objetivo = msg.params[0];
+    snprintf(respuesta, sizeof(respuesta), "OK ATTACK TARGET=%s", objetivo);
+    break;
+}
+
+case VERB_SCAN: {
+    if (msg.num_params < 1) {
+        construir_error(respuesta, 400, "SCAN requiere un área o objetivo");
+        break;
+    }
+    char *area = msg.params[0];
+    snprintf(respuesta, sizeof(respuesta), "OK SCAN AREA=%s", area);
+    break;
+}
+
+case VERB_MITIGATE: {
+    if (msg.num_params < 1) {
+        construir_error(respuesta, 400, "MITIGATE requiere un objetivo");
+        break;
+    }
+    char *objetivo = msg.params[0];
+    snprintf(respuesta, sizeof(respuesta), "OK MITIGATE TARGET=%s", objetivo);
+    break;
+}
+
+case VERB_STATUS: {
+    // Aquí puedes devolver información del jugador, por ejemplo rol y posición
+    snprintf(respuesta, sizeof(respuesta), "OK STATUS ROLE=atacante POS=2,3");
+    break;
+}
+
             case VERB_CREATE_ROOM: {
                 char room_id[16];
                 if (game_crear_sala(room_id) == 0) {
