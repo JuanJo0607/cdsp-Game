@@ -1,4 +1,3 @@
-import os
 import tkinter as tk
 import random
 from tkinter import messagebox, scrolledtext
@@ -71,11 +70,6 @@ class GameGui:
         self.host_entry.pack(pady=2)
         self.host_entry.insert(0, "server.cdsp")
 
-        tk.Label(self.login_frame, text="Port:", font=("Arial", 10)).pack(pady=2)
-        self.port_entry = tk.Entry(self.login_frame)
-        self.port_entry.pack(pady=2)
-        self.port_entry.insert(0, os.environ.get("SERVER_PORT", "8080"))
-
         tk.Button(
             self.login_frame, text="Conectar", command=self._connect,
             font=("Arial", 12), bg="#28a745", fg="white"
@@ -85,12 +79,10 @@ class GameGui:
         #Establece conexión con el servidor CDSP.
         host = self.host_entry.get()
         try:
-            port = int(self.port_entry.get())
             self.username = self.user_entry.get()
-            self.client = CDSPClient(host, port, callback=self._on_message)
+            # The port is now auto-discovered by DNS. 8080 is an arbitrary fallback
+            self.client = CDSPClient(host, 8080, callback=self._on_message)
             self.client.send(f"AUTH {self.username}")
-        except ValueError:
-            messagebox.showerror("Error", "El puerto debe ser un número")
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
@@ -210,7 +202,7 @@ class GameGui:
         # Recursos
         for rid, rinfo in self.resources.items():
             rx, ry = rinfo["x"], rinfo["y"]
-            color = {"safe":"#28a745", "under_attack":"#ffc107", "compromised":"#343a40"}.get(rinfo["status"], "#dc3545")
+            color = {"safe":"#28a745", "under_attack":"#ffc107", "compromised":"#343a40", "mitigated":"#17a2b8"}.get(rinfo["status"], "#dc3545")
             self.canvas.create_rectangle(rx*cell+2, ry*cell+2, (rx+1)*cell-2, (ry+1)*cell-2, fill=color)
 
         # Mi jugador
@@ -295,6 +287,14 @@ class GameGui:
         elif p[1] == "MOVE":
             self.pos = (int(p[2]), int(p[3]))
             self._draw_grid()
+        elif p[1] == "ATTACK":
+            if len(p) > 2 and p[2] in self.resources:
+                self.resources[p[2]]["status"] = "under_attack"
+            self._draw_grid()
+        elif p[1] == "MITIGATE":
+            if len(p) > 2 and p[2] in self.resources:
+                self.resources[p[2]]["status"] = "mitigated"
+            self._draw_grid()
 
     def _proc_notify(self, ntype, p):
         #Procesa notificaciones en tiempo real.
@@ -313,7 +313,7 @@ class GameGui:
             self._draw_grid()
         elif ntype == "MITIGATED":
             if p[2] in self.resources:
-                self.resources[p[2]]["status"] = "safe"
+                self.resources[p[2]]["status"] = "mitigated"
             self._draw_grid()
         elif ntype == "COMPROMISED":
             if p[2] in self.resources:

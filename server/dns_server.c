@@ -71,13 +71,20 @@ int main(int argc, char *argv[]) {
 
         printf("[%s] RECV: %s\n", remote_ip, buffer);
 
-        // Registro Dinámico: "REGISTER <hostname>"
+        // Registro Dinámico: "REGISTER <hostname> [port]"
         if (strncmp(buffer, "REGISTER ", 9) == 0) {
             char *hostname = buffer + 9;
+            char *port_str = "8080"; // Default
+            char *space = strchr(hostname, ' ');
+            if (space) {
+                *space = '\0';
+                port_str = space + 1;
+            }
             int found = 0;
             for (int i = 0; i < num_entries; i++) {
                 if (strcmp(dynamic_table[i].name, hostname) == 0) {
                     strncpy(dynamic_table[i].ip, remote_ip, 64);
+                    strncpy(dynamic_table[i].port, port_str, 16);
                     found = 1;
                     break;
                 }
@@ -85,18 +92,19 @@ int main(int argc, char *argv[]) {
             if (!found && num_entries < 100) {
                 strncpy(dynamic_table[num_entries].name, hostname, 64);
                 strncpy(dynamic_table[num_entries].ip, remote_ip, 64);
+                strncpy(dynamic_table[num_entries].port, port_str, 16);
                 num_entries++;
             }
             printf("  -> Registered: %s at %s\n", hostname, remote_ip);
-             // ✅ RESPUESTA AL CLIENTE
-    char response[] = "OK REGISTER";
-    sendto(sockfd,
-           response,
-           strlen(response),
-           0,
-           (struct sockaddr *)&cliaddr,
-           addr_len);
-        }
+            
+            char response[] = "OK REGISTER";
+            sendto(sockfd,
+                response,
+                strlen(response),
+                0,
+                (struct sockaddr *)&cliaddr,
+                addr_len);
+                }
         // Consulta: "QUERY <hostname>"
         else if (strncmp(buffer, "QUERY ", 6) == 0) {
             char *hostname = buffer + 6;
@@ -104,7 +112,7 @@ int main(int argc, char *argv[]) {
             
             for (int i = 0; i < num_entries; i++) {
                 if (strcmp(dynamic_table[i].name, hostname) == 0) {
-                    snprintf(response, BUFFER_SIZE, "ANSWER %s %s", hostname, dynamic_table[i].ip);
+                    snprintf(response, BUFFER_SIZE, "ANSWER %s %s %s", hostname, dynamic_table[i].ip, dynamic_table[i].port);
                     break;
                 }
             }

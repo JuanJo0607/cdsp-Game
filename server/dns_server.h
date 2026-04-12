@@ -8,6 +8,7 @@
 typedef struct {
     char name[64];
     char ip[64];
+    char port[16];
 } DnsEntry;
 
 // los servicios se registran con REGISTER <hostname>

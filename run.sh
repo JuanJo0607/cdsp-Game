@@ -7,6 +7,11 @@ echo "=============================="
 # ============================
 # CARGAR .env
 # ============================
+
+if [ -f .env ]; then
+    sed -i 's/\r$//' .env   
+fi
+
 if [ -f .env ]; then
     echo "📦 Cargando .env..."
     set -a
@@ -38,7 +43,7 @@ echo "🌐 Iniciando DNS..."
 DNS_PID=$!
 
 # ============================
-# ESPERAR DNS LISTO (FIX CRÍTICO)
+# ESPERAR DNS LISTO 
 # ============================
 echo "⏳ Esperando DNS listo..."
 

@@ -67,8 +67,8 @@ void game_desconectar_jugador(int fd);
 // Funciones de lógica de juego
 int  game_mover_jugador(int fd, int dx, int dy, int *nx, int *ny, char *room_id_out);
 int  game_scan_recurso(int fd, char *res_id_out, int *x_out, int *y_out);
-int  game_atacar_recurso(int fd, const char *res_id, char *room_id_out);
-int  game_mitigar_recurso(int fd, const char *res_id, char *room_id_out);
+int  game_atacar_recurso(int fd, const char *res_id, char *room_id_out, char *real_id_out);
+int  game_mitigar_recurso(int fd, const char *res_id, char *room_id_out, char *real_id_out);
 void game_obtener_estado_jugador(int fd, char *buffer_out);
 const char* game_obtener_rol(int fd);
 void game_tick();

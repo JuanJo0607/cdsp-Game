@@ -9,10 +9,10 @@ class CDSPClient:
         self.callback = callback
         try:
             # Intentar resolver nombre via DNS UDP si termina en .cdsp
-            resolved_host = self._resolve_name(host)
+            resolved_host, resolved_port = self._resolve_name(host, port)
 
             info = socket.getaddrinfo(
-                resolved_host, port, socket.AF_INET, socket.SOCK_STREAM
+                resolved_host, resolved_port, socket.AF_INET, socket.SOCK_STREAM
             )[0]
             self.sock = socket.socket(*info[:3])
             self.sock.connect(info[4])
@@ -21,10 +21,10 @@ class CDSPClient:
         except Exception as e:
             raise ConnectionError(f"No se pudo conectar al servidor: {e}")
 
-    def _resolve_name(self, hostname: str) -> str:
+    def _resolve_name(self, hostname: str, default_port: int) -> tuple[str, int]:
         #Resuelve un nombre a una IP usando el DNS (UDP) en el puerto 5353.
         if not hostname.endswith(".cdsp"):
-            return hostname
+            return hostname, default_port
 
         print(f"DNS: Resolviendo {hostname} via UDP...")
         try:
@@ -42,12 +42,13 @@ class CDSPClient:
                 parts = response.split(" ")
                 if len(parts) >= 3 and parts[1] != "NOT_FOUND":
                     ip = parts[2]
-                    print(f"DNS: {hostname} resuelto a {ip}")
-                    return ip
+                    port = int(parts[3]) if len(parts) >= 4 else default_port
+                    print(f"DNS: {hostname} resuelto a {ip}:{port}")
+                    return ip, port
         except Exception as e:
             print(f"DNS WARNING: Falló resolución UDP ({e}). Usando nombre directo.")
 
-        return hostname  # Fallback
+        return hostname, default_port  # Fallback
 
     def send(self, msg: str):
         print(f"CLIENT -> SERVER: {msg}")
