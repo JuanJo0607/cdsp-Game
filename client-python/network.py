@@ -12,7 +12,7 @@ class CDSPClient:
             resolved_host = self._resolve_name(host)
 
             info = socket.getaddrinfo(
-                resolved_host, port, socket.AF_UNSPEC, socket.SOCK_STREAM
+                resolved_host, port, socket.AF_INET, socket.SOCK_STREAM
             )[0]
             self.sock = socket.socket(*info[:3])
             self.sock.connect(info[4])

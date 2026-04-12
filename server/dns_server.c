@@ -7,7 +7,16 @@
 #include "dns_server.h"
 
 int main(int argc, char *argv[]) {
-    const char *port = (argc > 1) ? argv[1] : DNS_PORT;
+    const char *port = getenv("DNS_PORT");
+
+    if (argc > 1) {
+        port = argv[1];
+    }
+
+    if (!port) {
+        port = DNS_PORT;
+    }
+    
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -79,6 +88,14 @@ int main(int argc, char *argv[]) {
                 num_entries++;
             }
             printf("  -> Registered: %s at %s\n", hostname, remote_ip);
+             // ✅ RESPUESTA AL CLIENTE
+    char response[] = "OK REGISTER";
+    sendto(sockfd,
+           response,
+           strlen(response),
+           0,
+           (struct sockaddr *)&cliaddr,
+           addr_len);
         }
         // Consulta: "QUERY <hostname>"
         else if (strncmp(buffer, "QUERY ", 6) == 0) {

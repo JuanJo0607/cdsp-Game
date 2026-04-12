@@ -280,35 +280,60 @@ void *tick_thread_func(void *arg) {
 void registrar_en_dns() {
     int sockfd;
     struct sockaddr_in servaddr;
-    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) return;
+
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
+        return;
+
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
+
     const char *dns_port_str = getenv("DNS_PORT");
     int dns_port = dns_port_str ? atoi(dns_port_str) : 5353;
     servaddr.sin_port = htons(dns_port);
-    
+
     const char *dns_ip = getenv("DNS_SERVER");
     if (!dns_ip) dns_ip = "127.0.0.1";
+
     servaddr.sin_addr.s_addr = inet_addr(dns_ip);
 
     const char *reg = "REGISTER server.cdsp";
-    sendto(sockfd, reg, strlen(reg), 0, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+
+    //Enviar registro
+    sendto(sockfd, reg, strlen(reg), 0,
+           (const struct sockaddr *)&servaddr, sizeof(servaddr));
+
+    //Esperar respuesta del DNS
+    char buffer[128];
+    struct sockaddr_in from;
+    socklen_t fromlen = sizeof(from);
+
+    int n = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0,
+                     (struct sockaddr *)&from, &fromlen);
+
+    if (n > 0) {
+        buffer[n] = '\0';
+        printf("DNS RESPONSE: %s\n", buffer);
+    } else {
+        printf("DNS: sin respuesta\n");
+    }
+
     close(sockfd);
-    printf("DNS: Registro enviado a %s:5353\n", dns_ip);
+
+    printf("DNS: Registro enviado a %s:%d\n", dns_ip, dns_port);
 }
 
 int main(int argc, char *argv[]) {
     signal(SIGPIPE, SIG_IGN);
 
-    if (argc < 3) {
-        printf("Uso: %s <puerto> <log_file>\n", argv[0]);
-        return 1;
-    }
+    const char *env_port = getenv("SERVER_PORT");
+    const char *env_log = getenv("SERVER_LOG_FILE");
+
+    const char *port_str = (argc > 1) ? argv[1] : (env_port ? env_port : "8080");
+    archivo_logs_global = (argc > 2) ? argv[2] : (char *)(env_log ? env_log : "logs.txt");
 
     registrar_en_dns();
 
-    archivo_logs_global = argv[2];
-    int puerto = atoi(argv[1]);
+    int puerto = atoi(port_str);
 
     FILE *log_file = fopen(archivo_logs_global, "a");
     if (log_file == NULL) {
@@ -327,7 +352,7 @@ int main(int argc, char *argv[]) {
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // Usar mi IP local
 
-    if ((rv = getaddrinfo(NULL, argv[1], &hints, &servinfo)) != 0) {
+    if ((rv = getaddrinfo(NULL, port_str, &hints, &servinfo)) != 0) {
         fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
         return 1;
     }

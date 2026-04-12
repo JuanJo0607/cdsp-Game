@@ -118,9 +118,17 @@ Para limpiar los archivos compilados:
 make clean
 ```
 
+## Activa el DNS 
+
+El servidor DNS debe ejecutarse antes del servidor principal:
+
+```bash
+./dns_server 5353
+```
 ---
 
-## Correr el servidor
+## Correr el servidor manualmente
+
 
 ```bash
 ./server <puerto> <archivoDeLogs>
@@ -139,11 +147,20 @@ Servidor escuchando en puerto 8080...
 ```
 
 ---
-## Activa el DNS
+
+## Ejecución automática (server)
 
 ```bash
-./dns_server 5353
+chmod +x run.sh
+./run.sh
 ```
+Este script:
+
+Compila el servidor
+Inicia el DNS
+Espera a que esté listo
+Inicia el servidor principal
+Carga configuración desde .env
 
 
 
