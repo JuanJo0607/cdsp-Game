@@ -10,11 +10,6 @@ typedef struct {
     char ip[64];
 } DnsEntry;
 
-// Tabla de resolución estática
-static DnsEntry dns_table[] = {
-    {"server.cdsp", "127.0.0.1"},
-    {"auth.cdsp", "127.0.0.1"},
-    {"", ""}
-};
+// los servicios se registran con REGISTER <hostname>
 
 #endif

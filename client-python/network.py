@@ -33,7 +33,8 @@ class CDSPClient:
             dns_sock.settimeout(2.0)
             # En un entorno real, la IP del DNS se obtendría por DHCP o config
             dns_host = os.environ.get("DNS_SERVER", "127.0.0.1")
-            dns_sock.sendto(f"QUERY {hostname}".encode("utf-8"), (dns_host, 5353))
+            dns_port = int(os.environ.get("DNS_PORT", "5353"))
+            dns_sock.sendto(f"QUERY {hostname}".encode("utf-8"), (dns_host, dns_port))
 
             data, _ = dns_sock.recvfrom(1024)
             response = data.decode("utf-8")

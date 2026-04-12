@@ -95,19 +95,32 @@ int game_unir_jugador(const char *room_id, int fd, const char *username, const c
         return -1;
     }
 
-    strncpy(s->jugadores[s->num_jugadores].username, username, 64);
-    s->jugadores[s->num_jugadores].fd = fd;
-    strncpy(s->jugadores[s->num_jugadores].ip, ip, 64);
-    s->jugadores[s->num_jugadores].port = port;
-    s->jugadores[s->num_jugadores].activo = 1;
-    strncpy(s->jugadores[s->num_jugadores].rol, rol, 16);
+    int free_slot = -1;
+    for (int i = 0; i < MAX_JUGADORES; i++) {
+        if (!s->jugadores[i].activo) {
+            free_slot = i;
+            break;
+        }
+    }
+
+    if (free_slot == -1) {
+        pthread_mutex_unlock(&mutex);
+        return -1;
+    }
+
+    strncpy(s->jugadores[free_slot].username, username, 64);
+    s->jugadores[free_slot].fd = fd;
+    strncpy(s->jugadores[free_slot].ip, ip, 64);
+    s->jugadores[free_slot].port = port;
+    s->jugadores[free_slot].activo = 1;
+    strncpy(s->jugadores[free_slot].rol, rol, 16);
     
     // Coordenadas iniciales
-    s->jugadores[s->num_jugadores].x = rand() % PLANO_ANCHO;
-    s->jugadores[s->num_jugadores].y = rand() % PLANO_ALTO;
+    s->jugadores[free_slot].x = rand() % PLANO_ANCHO;
+    s->jugadores[free_slot].y = rand() % PLANO_ALTO;
     
-    *x_out = s->jugadores[s->num_jugadores].x;
-    *y_out = s->jugadores[s->num_jugadores].y;
+    *x_out = s->jugadores[free_slot].x;
+    *y_out = s->jugadores[free_slot].y;
     
     s->num_jugadores++;
     pthread_mutex_unlock(&mutex);
@@ -141,24 +154,31 @@ Sala *game_buscar_sala(const char *room_id) {
     return NULL;
 }
 
-// Enviar un mensaje a todos los jugadores de una sala excepto al emisor
 void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje) {
+    typedef struct { int fd; char ip[64]; int port; } Target;
+    Target targets[MAX_JUGADORES];
+    int t_count = 0;
+
     pthread_mutex_lock(&mutex);
 
     Sala *s = game_buscar_sala(room_id);
-    if (s == NULL) {
-        pthread_mutex_unlock(&mutex);
-        return;
-    }
-
-    for (int i = 0; i < MAX_JUGADORES; i++) {
-        if (s->jugadores[i].activo && s->jugadores[i].fd != fd_emisor) {
-            send(s->jugadores[i].fd, mensaje, strlen(mensaje), 0);
-            registrar_log(s->jugadores[i].ip, s->jugadores[i].port, "Enviado", mensaje);
+    if (s != NULL) {
+        for (int i = 0; i < MAX_JUGADORES; i++) {
+            if (s->jugadores[i].activo && s->jugadores[i].fd != fd_emisor) {
+                targets[t_count].fd = s->jugadores[i].fd;
+                strncpy(targets[t_count].ip, s->jugadores[i].ip, 64);
+                targets[t_count].port = s->jugadores[i].port;
+                t_count++;
+            }
         }
     }
 
     pthread_mutex_unlock(&mutex);
+
+    for (int i = 0; i < t_count; i++) {
+        send(targets[i].fd, mensaje, strlen(mensaje), 0);
+        registrar_log(targets[i].ip, targets[i].port, "Enviado", mensaje);
+    }
 }
 
 // Desconectar un jugador de cualquier sala donde esté
@@ -440,6 +460,10 @@ const char* game_obtener_rol(int fd) {
 }
 
 void game_tick() {
+    typedef struct { int fd; char ip[64]; int port; char msg[128]; } Target;
+    Target targets[MAX_SALAS * MAX_JUGADORES];
+    int t_count = 0;
+
     pthread_mutex_lock(&mutex);
     time_t now = time(NULL);
 
@@ -457,9 +481,12 @@ void game_tick() {
                     char nt[128];
                     snprintf(nt, 128, "NOTIFY COMPROMISED %s \"Recurso perdido por tiempo\"\n", res->id);
                     for (int k = 0; k < MAX_JUGADORES; k++) {
-                        if (salas[i].jugadores[k].activo) {
-                            send(salas[i].jugadores[k].fd, nt, strlen(nt), 0);
-                            registrar_log(salas[i].jugadores[k].ip, salas[i].jugadores[k].port, "Enviado", nt);
+                        if (salas[i].jugadores[k].activo && t_count < MAX_SALAS * MAX_JUGADORES) {
+                            targets[t_count].fd = salas[i].jugadores[k].fd;
+                            strncpy(targets[t_count].ip, salas[i].jugadores[k].ip, 64);
+                            targets[t_count].port = salas[i].jugadores[k].port;
+                            strncpy(targets[t_count].msg, nt, 128);
+                            t_count++;
                         }
                     }
                 }
@@ -475,26 +502,37 @@ void game_tick() {
             salas[i].estado = SALA_TERMINADA;
             char msg[128] = "NOTIFY GAME_OVER atacante \"Atacante ha comprometido todo el sistema\"\n";
             for (int k = 0; k < MAX_JUGADORES; k++) {
-                if (salas[i].jugadores[k].activo) {
-                    send(salas[i].jugadores[k].fd, msg, strlen(msg), 0);
-                    registrar_log(salas[i].jugadores[k].ip, salas[i].jugadores[k].port, "Enviado", msg);
+                if (salas[i].jugadores[k].activo && t_count < MAX_SALAS * MAX_JUGADORES) {
+                    targets[t_count].fd = salas[i].jugadores[k].fd;
+                    strncpy(targets[t_count].ip, salas[i].jugadores[k].ip, 64);
+                    targets[t_count].port = salas[i].jugadores[k].port;
+                    strncpy(targets[t_count].msg, msg, 128);
+                    t_count++;
                 }
             }
             salas[i].activa = 0; // Liberar sala
         }
 
         // Tiempo agotado? (5 minutos = 300s)
-        if (difftime(now, salas[i].inicio_partida) >= 300.0) {
+        else if (difftime(now, salas[i].inicio_partida) >= 300.0) {
             salas[i].estado = SALA_TERMINADA;
             char msg[128] = "NOTIFY GAME_OVER defensor \"Defensa exitosa: Se acabo el tiempo\"\n";
             for (int k = 0; k < MAX_JUGADORES; k++) {
-                if (salas[i].jugadores[k].activo) {
-                    send(salas[i].jugadores[k].fd, msg, strlen(msg), 0);
-                    registrar_log(salas[i].jugadores[k].ip, salas[i].jugadores[k].port, "Enviado", msg);
+                if (salas[i].jugadores[k].activo && t_count < MAX_SALAS * MAX_JUGADORES) {
+                    targets[t_count].fd = salas[i].jugadores[k].fd;
+                    strncpy(targets[t_count].ip, salas[i].jugadores[k].ip, 64);
+                    targets[t_count].port = salas[i].jugadores[k].port;
+                    strncpy(targets[t_count].msg, msg, 128);
+                    t_count++;
                 }
             }
             salas[i].activa = 0; // Liberar sala
         }
     }
     pthread_mutex_unlock(&mutex);
+
+    for (int i = 0; i < t_count; i++) {
+        send(targets[i].fd, targets[i].msg, strlen(targets[i].msg), 0);
+        registrar_log(targets[i].ip, targets[i].port, "Enviado", targets[i].msg);
+    }
 }

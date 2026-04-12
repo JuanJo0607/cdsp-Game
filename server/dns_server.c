@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     int rv;
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; // Protocol-agnostic (IPv4 or IPv6)
+    hints.ai_family = AF_INET; // IPv4 Only
     hints.ai_socktype = SOCK_DGRAM; // UDP
     hints.ai_flags = AI_PASSIVE;
 
@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
         if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
             continue;
         }
+
         if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             close(sockfd);
             continue;
@@ -34,23 +35,18 @@ int main(int argc, char *argv[]) {
     }
 
     if (p == NULL) {
-        fprintf(stderr, "DNS: error al iniciar el servicio UDP\n");
+        fprintf(stderr, "DNS: error al iniciar el servicio UDP (¿puerto %s en uso?)\n", port);
         return 2;
     }
 
     freeaddrinfo(servinfo);
+    printf("DNS: Servidor escuchando en puerto %s\n", port);
     DnsEntry dynamic_table[100];
     int num_entries = 0;
-
-    // Poblar con la tabla estática al inicio
-    for (int i = 0; dns_table[i].name[0] != '\0' && i < 100; i++) {
-        strncpy(dynamic_table[num_entries].name, dns_table[i].name, 64);
-        strncpy(dynamic_table[num_entries].ip, dns_table[i].ip, 64);
-        num_entries++;
-    }
+    // Tabla vacía — los servicios se registran con REGISTER <hostname>
 
     char buffer[BUFFER_SIZE];
-    struct sockaddr_storage cliaddr;
+    struct sockaddr_in cliaddr;
     socklen_t addr_len;
 
     while (1) {
@@ -59,9 +55,10 @@ int main(int argc, char *argv[]) {
         if (n <= 0) continue;
         buffer[n] = '\0';
 
-        char remote_ip[INET6_ADDRSTRLEN];
-        struct sockaddr_in *s4 = (struct sockaddr_in *)&cliaddr;
-        inet_ntop(AF_INET, &(s4->sin_addr), remote_ip, sizeof(remote_ip));
+        char remote_ip[INET_ADDRSTRLEN];
+        if (getnameinfo((struct sockaddr *)&cliaddr, addr_len, remote_ip, sizeof(remote_ip), NULL, 0, NI_NUMERICHOST) != 0) {
+            strncpy(remote_ip, "unknown", sizeof(remote_ip));
+        }
 
         printf("[%s] RECV: %s\n", remote_ip, buffer);
 

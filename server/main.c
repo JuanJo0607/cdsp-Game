@@ -31,7 +31,7 @@ void registrar_log(const char *ip, int port, const char *sent_recv, const char *
 // Estructura que le pasamos a cada hilo con los datos del cliente
 typedef struct {
     int fd;
-    char ip[INET6_ADDRSTRLEN];
+    char ip[INET_ADDRSTRLEN];
     int puerto;
     char rol[16];
     char username[64];
@@ -283,7 +283,9 @@ void registrar_en_dns() {
     if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) return;
     memset(&servaddr, 0, sizeof(servaddr));
     servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(5353);
+    const char *dns_port_str = getenv("DNS_PORT");
+    int dns_port = dns_port_str ? atoi(dns_port_str) : 5353;
+    servaddr.sin_port = htons(dns_port);
     
     const char *dns_ip = getenv("DNS_SERVER");
     if (!dns_ip) dns_ip = "127.0.0.1";
@@ -321,7 +323,7 @@ int main(int argc, char *argv[]) {
     int rv;
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; // CUALQUIERA (IPv4 o IPv6)
+    hints.ai_family = AF_INET; // IPv4 Only
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE; // Usar mi IP local
 
@@ -368,7 +370,7 @@ int main(int argc, char *argv[]) {
 
     // Bucle principal: acepta clientes indefinidamente
     while (1) {
-        struct sockaddr_storage cliente_addr;
+        struct sockaddr_in cliente_addr;
         socklen_t cliente_len = sizeof(cliente_addr);
         int cliente_fd = accept(server_fd, (struct sockaddr *)&cliente_addr, &cliente_len);
         
@@ -379,16 +381,9 @@ int main(int argc, char *argv[]) {
         ThreadInfo *info = malloc(sizeof(ThreadInfo));
         info->fd = cliente_fd;
         
-        // Obtener IP del cliente de forma agnóstica
-        if (cliente_addr.ss_family == AF_INET) {
-            struct sockaddr_in *s = (struct sockaddr_in *)&cliente_addr;
-            inet_ntop(AF_INET, &s->sin_addr, info->ip, sizeof(info->ip));
-            info->puerto = ntohs(s->sin_port);
-        } else {
-            struct sockaddr_in6 *s = (struct sockaddr_in6 *)&cliente_addr;
-            inet_ntop(AF_INET6, &s->sin6_addr, info->ip, sizeof(info->ip));
-            info->puerto = ntohs(s->sin6_port);
-        }
+        // Obtener IP del cliente (sólo IPv4 esperado)
+        inet_ntop(AF_INET, &cliente_addr.sin_addr, info->ip, sizeof(info->ip));
+        info->puerto = ntohs(cliente_addr.sin_port);
 
         // Crear hilo para este cliente
         pthread_t hilo;

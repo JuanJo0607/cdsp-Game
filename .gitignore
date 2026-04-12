@@ -1,5 +1,6 @@
 # Ejecutables compilados
 server/server
+server/dns_server
 client-c/client
 
 # Archivos de logs
@@ -8,3 +9,8 @@ client-c/client
 
 # Archivos de compilación
 *.o
+
+# Variables de entorno — nunca subir al repo
+.env
+
+__pycache__/

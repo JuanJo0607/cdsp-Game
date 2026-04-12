@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 import random
 from tkinter import messagebox, scrolledtext
@@ -73,7 +74,7 @@ class GameGui:
         tk.Label(self.login_frame, text="Port:", font=("Arial", 10)).pack(pady=2)
         self.port_entry = tk.Entry(self.login_frame)
         self.port_entry.pack(pady=2)
-        self.port_entry.insert(0, "8080")
+        self.port_entry.insert(0, os.environ.get("SERVER_PORT", "8080"))
 
         tk.Button(
             self.login_frame, text="Conectar", command=self._connect,
