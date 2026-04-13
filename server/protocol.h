@@ -14,6 +14,7 @@ typedef enum {
     VERB_ATTACK,
     VERB_MITIGATE,
     VERB_STATUS,
+    VERB_PING,
     VERB_QUIT,
     VERB_UNKNOWN
 } Verbo;
