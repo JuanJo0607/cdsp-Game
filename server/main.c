@@ -162,7 +162,7 @@ void *atender_cliente(void *arg) {
                 int x, y;
                 if (game_unir_jugador(msg.params[0], cliente->fd, "jugador", msg.params[1], &x, &y) == 0) {
                     strncpy(room_actual, msg.params[0], sizeof(room_actual) - 1);
-                    strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
+                    //strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
                     char datos[256];
                     snprintf(datos, sizeof(datos), "%s ROLE=%s POS=%d,%d", msg.params[0], msg.params[1], x, y);
                     construir_respuesta(respuesta, "JOIN", datos);
@@ -217,7 +217,7 @@ void *atender_cliente(void *arg) {
                     construir_error(respuesta, 401, "Debes unirte a una sala primero");
                     break;
                 }
-                if (strcmp(rol_actual, "atacante") != 0) {
+                if (strcmp(rol_actual, "attacker") != 0) {
                     construir_error(respuesta, 403, "Solo atacantes pueden usar SCAN");
                     break;
                 }
@@ -235,7 +235,7 @@ void *atender_cliente(void *arg) {
                     construir_error(respuesta, 400, "ATTACK requiere resource_id");
                     break;
                 }
-                if (strcmp(rol_actual, "atacante") != 0) {
+                if (strcmp(rol_actual, "attacker") != 0) {
                     construir_error(respuesta, 403, "Solo atacantes pueden usar ATTACK");
                     break;
                 }
@@ -260,7 +260,7 @@ void *atender_cliente(void *arg) {
                     construir_error(respuesta, 400, "MITIGATE requiere resource_id");
                     break;
                 }
-                if (strcmp(rol_actual, "defensor") != 0) {
+                if (strcmp(rol_actual, "defender") != 0) {
                     construir_error(respuesta, 403, "Solo defensores pueden usar MITIGATE");
                     break;
                 }

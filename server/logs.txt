@@ -77,3 +77,102 @@ Cliente conectado: 127.0.0.1:54088
 [127.0.0.1:51076] Enviado: OK JOIN room_001 ROLE=atacante POS=0,0
 [127.0.0.1:54088] Recibido: AUTH maria
 [127.0.0.1:54088] Enviado: OK AUTH "maria" ROLE=atacante
+Cliente conectado: 127.0.0.1:54742
+[127.0.0.1:54742] Recibido: AUTH juan
+[127.0.0.1:54742] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:54742] Recibido: AUTH andres
+[127.0.0.1:54742] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:54742] Recibido: AUTH desconocido 
+[127.0.0.1:54742] Enviado: ERR 401 "Usuario no encontrado"
+Cliente conectado: 127.0.0.1:60848
+Cliente conectado: 127.0.0.1:35396
+[127.0.0.1:60848] Recibido: AUTH juan
+[127.0.0.1:60848] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:60848] Recibido: CREATE_ROOM
+[127.0.0.1:60848] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:60848] Recibido: JOIN room_001 attacker 
+[127.0.0.1:60848] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+[127.0.0.1:35396] Recibido: AUTH andres
+[127.0.0.1:35396] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:35396] Recibido: JOIN room_001 defender
+[127.0.0.1:35396] Enviado: OK JOIN room_001 ROLE=defender POS=0,0
+[127.0.0.1:60848] Recibido: MOVE 1 0
+[127.0.0.1:60848] Enviado: OK MOVE POS=1,0
+[127.0.0.1:60848] Recibido: MOVE 1 0
+[127.0.0.1:60848] Enviado: OK MOVE POS=2,0
+[127.0.0.1:60848] Recibido: MOVE 1 0
+[127.0.0.1:60848] Enviado: OK MOVE POS=3,0
+[127.0.0.1:60848] Recibido: MOVE 1 0
+[127.0.0.1:60848] Enviado: OK MOVE POS=4,0
+[127.0.0.1:60848] Recibido: MOVE 1 0
+[127.0.0.1:60848] Enviado: OK MOVE POS=5,0
+[127.0.0.1:60848] Recibido: MOVE 0 1
+[127.0.0.1:60848] Enviado: OK MOVE POS=5,1
+[127.0.0.1:60848] Recibido: MOVE 0 1
+[127.0.0.1:60848] Enviado: OK MOVE POS=5,2
+[127.0.0.1:60848] Recibido: MOVE 0 1
+[127.0.0.1:60848] Enviado: OK MOVE POS=5,3
+[127.0.0.1:60848] Recibido: MOVE 0 1
+[127.0.0.1:60848] Enviado: OK MOVE POS=5,4
+[127.0.0.1:60848] Recibido: MOVE 0 1
+[127.0.0.1:60848] Enviado: OK MOVE POS=5,5
+[127.0.0.1:60848] Recibido: ATTACK srv_01
+[127.0.0.1:60848] Enviado: ERR 403 "Solo atacantes pueden usar ATTACK"
+Cliente conectado: 127.0.0.1:49118
+Cliente conectado: 127.0.0.1:49122
+[127.0.0.1:49118] Recibido: AUTH juan
+[127.0.0.1:49118] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:49118] Recibido: CREATE ROOM
+[127.0.0.1:49118] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:49118] Recibido: CREATE_ROOM
+[127.0.0.1:49118] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:49118] Recibido: JOIN room_001 attacker
+[127.0.0.1:49118] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+[127.0.0.1:49118] Recibido: MOVE 1 0
+[127.0.0.1:49118] Enviado: OK MOVE POS=1,0
+[127.0.0.1:49118] Recibido: MOVE 1 0
+[127.0.0.1:49118] Enviado: OK MOVE POS=2,0
+[127.0.0.1:49118] Recibido: MOVE 1 0
+[127.0.0.1:49118] Enviado: OK MOVE POS=3,0
+[127.0.0.1:49118] Recibido: MOVE 1 0
+[127.0.0.1:49118] Enviado: OK MOVE POS=4,0
+[127.0.0.1:49118] Recibido: MOVE 1 0
+[127.0.0.1:49118] Enviado: OK MOVE POS=5,0
+[127.0.0.1:49118] Recibido: MOVE 0 1
+[127.0.0.1:49118] Enviado: OK MOVE POS=5,1
+[127.0.0.1:49118] Recibido: MOVE 0 1
+[127.0.0.1:49118] Enviado: OK MOVE POS=5,2
+[127.0.0.1:49118] Recibido: MOVE 0 1
+[127.0.0.1:49118] Enviado: OK MOVE POS=5,3
+[127.0.0.1:49118] Recibido: MOVE 0 1
+[127.0.0.1:49118] Enviado: OK MOVE POS=5,4
+[127.0.0.1:49118] Recibido: MOVE 0 1
+[127.0.0.1:49118] Enviado: OK MOVE POS=5,5
+[127.0.0.1:49118] Recibido: ATTACK srv_01
+[127.0.0.1:49118] Enviado: OK ATTACK srv_01
+[127.0.0.1:49122] Recibido: AUTH andres
+[127.0.0.1:49122] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:49122] Recibido: JOIN room_001 defender
+[127.0.0.1:49122] Enviado: OK JOIN room_001 ROLE=defender POS=0,0
+[127.0.0.1:49122] Recibido: MOVE 1 0
+[127.0.0.1:49122] Enviado: OK MOVE POS=1,0
+[127.0.0.1:49122] Recibido: MOVE 1 0
+[127.0.0.1:49122] Enviado: OK MOVE POS=2,0
+[127.0.0.1:49122] Recibido: MOVE 1 0
+[127.0.0.1:49122] Enviado: OK MOVE POS=3,0
+[127.0.0.1:49122] Recibido: MOVE 1 0
+[127.0.0.1:49122] Enviado: OK MOVE POS=4,0
+[127.0.0.1:49122] Recibido: MOVE 1 0
+[127.0.0.1:49122] Enviado: OK MOVE POS=5,0
+[127.0.0.1:49122] Recibido: MOVE 0 1
+[127.0.0.1:49122] Enviado: OK MOVE POS=5,1
+[127.0.0.1:49122] Recibido: MOVE 0 1
+[127.0.0.1:49122] Enviado: OK MOVE POS=5,2
+[127.0.0.1:49122] Recibido: MOVE 0 1
+[127.0.0.1:49122] Enviado: OK MOVE POS=5,3
+[127.0.0.1:49122] Recibido: MOVE 0 1
+[127.0.0.1:49122] Enviado: OK MOVE POS=5,4
+[127.0.0.1:49122] Recibido: MOVE 0 1
+[127.0.0.1:49122] Enviado: OK MOVE POS=5,5
+[127.0.0.1:49122] Recibido: MITIGATE srv_01
+[127.0.0.1:49122] Enviado: OK MITIGATE srv_01
