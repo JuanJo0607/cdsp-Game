@@ -229,7 +229,7 @@ Para cumplir con el **Requerimiento 3** (sin IPs hardcodeadas), hemos implementa
 1. Compila los servidores: `cd server && make`
 2. Ejecuta el servidor DNS en una terminal:
    ```bash
-   ./dns_server 5353
+   ./dns_server 5354
    ```
 3. Ejecuta el servidor de juego en otra terminal:
    ```bash
