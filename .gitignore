@@ -13,4 +13,4 @@ client-c/client
 # Variables de entorno — nunca subir al repo
 .env
 
-__pycache__/
+__pycache__/.env
