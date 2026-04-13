@@ -7,3 +7,73 @@ Cliente conectado: 127.0.0.1:52976
 Cliente conectado: 127.0.0.1:55524
 [127.0.0.1:55524] Recibido: Hola servidor P2
 [127.0.0.1:55524] Enviado: OK
+Cliente conectado: 127.0.0.1:51678
+[127.0.0.1:51678] Recibido: AUTH juanito
+[127.0.0.1:51678] Enviado: OK
+[127.0.0.1:51678] Recibido: AUTH juanito
+[127.0.0.1:51678] Enviado: OK
+[127.0.0.1:51678] Recibido: LIST_ROOMS
+[127.0.0.1:51678] Enviado: OK
+Cliente desconectado: 127.0.0.1:51678
+Cliente conectado: 127.0.0.1:43142
+[127.0.0.1:43142] Recibido: AUTH juanito
+[127.0.0.1:43142] Enviado: OK AUTH "juanito" ROLE=atacante
+[127.0.0.1:43142] Recibido: LIST_ROOMS
+[127.0.0.1:43142] Enviado: OK LIST_ROOMS 0
+Cliente desconectado: 127.0.0.1:43142
+Cliente conectado: 127.0.0.1:45734
+[127.0.0.1:45734] Recibido: Hola Servidor | nc localhost 8080
+echo Hola Servidor
+[127.0.0.1:45734] Enviado: ERR 400 "Verbo desconocido"
+Cliente desconectado: 127.0.0.1:45734
+Cliente conectado: 127.0.0.1:34520
+[127.0.0.1:34520] Recibido: Hola Servidor | nc localhost 8080
+
+echo Hola Servidor
+[127.0.0.1:34520] Enviado: ERR 400 "Verbo desconocido"
+Cliente desconectado: 127.0.0.1:34520
+Cliente conectado: 127.0.0.1:42986
+[127.0.0.1:42986] Recibido: Hola Servidor
+[127.0.0.1:42986] Enviado: ERR 400 "Verbo desconocido"
+Cliente desconectado: 127.0.0.1:42986
+Cliente conectado: 127.0.0.1:54838
+[127.0.0.1:54838] Recibido: AUTH juanito
+[127.0.0.1:54838] Enviado: OK AUTH "juanito" ROLE=atacante
+[127.0.0.1:54838] Recibido: LIST_ROOMS
+[127.0.0.1:54838] Enviado: OK LIST_ROOMS 0
+[127.0.0.1:54838] Recibido: HOLA_INVENTADO
+[127.0.0.1:54838] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:54838] Recibido: QUIT
+[127.0.0.1:54838] Enviado: OK QUIT
+Cliente conectado: 127.0.0.1:33606
+[127.0.0.1:33606] Recibido: CREATE_ROOM
+[127.0.0.1:33606] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:33606] Recibido: LIST_ROOMS
+[127.0.0.1:33606] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:33606] Recibido: JOIN room_001 atacante
+[127.0.0.1:33606] Enviado: OK JOIN room_001 ROLE=atacante POS=0,0
+[127.0.0.1:33606] Recibido: QUIT
+[127.0.0.1:33606] Enviado: OK QUIT
+Cliente conectado: 127.0.0.1:32900
+Cliente desconectado: 127.0.0.1:32900
+Cliente conectado: 127.0.0.1:52456
+[127.0.0.1:52456] Recibido: AUTH juanito
+[127.0.0.1:52456] Enviado: OK AUTH "juanito" ROLE=atacante
+[127.0.0.1:52456] Recibido: CREATE_ROOM
+[127.0.0.1:52456] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:52456] Recibido: LIST_ROOMS
+[127.0.0.1:52456] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:52456] Recibido: JOIN room_001 atacante
+[127.0.0.1:52456] Enviado: OK JOIN room_001 ROLE=atacante POS=0,0
+[127.0.0.1:52456] Recibido: QUIT
+[127.0.0.1:52456] Enviado: OK QUIT
+Cliente conectado: 127.0.0.1:51076
+Cliente conectado: 127.0.0.1:54088
+[127.0.0.1:51076] Recibido: AUTH juanito
+[127.0.0.1:51076] Enviado: OK AUTH "juanito" ROLE=atacante
+[127.0.0.1:51076] Recibido: CREATE_ROOM
+[127.0.0.1:51076] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:51076] Recibido: JOIN room_001 atacante
+[127.0.0.1:51076] Enviado: OK JOIN room_001 ROLE=atacante POS=0,0
+[127.0.0.1:54088] Recibido: AUTH maria
+[127.0.0.1:54088] Enviado: OK AUTH "maria" ROLE=atacante

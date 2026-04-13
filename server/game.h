@@ -48,7 +48,7 @@ typedef struct {
     Recurso recursos[MAX_RECURSOS];
 } Sala;
 
-// Funciones disponibles
+// Funciones del juego
 void game_init();
 int  game_crear_sala(char *id_out);
 int  game_unir_jugador(const char *room_id, int fd, const char *username, const char *rol, int *x_out, int *y_out);
@@ -56,5 +56,10 @@ void game_listar_salas(char *buffer_out);
 Sala *game_buscar_sala(const char *room_id);
 void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje);
 void game_desconectar_jugador(int fd);
+int  game_mover_jugador(const char *room_id, int fd, int dx, int dy, int *x_out, int *y_out, char *notify_out);
+void game_scan(const char *room_id, int fd, char *resultado_out);
+int  game_atacar(const char *room_id, int fd, const char *resource_id);
+int  game_mitigar(const char *room_id, int fd, const char *resource_id);
+
 
 #endif

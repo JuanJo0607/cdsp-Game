@@ -23,6 +23,8 @@ void *atender_cliente(void *arg) {
     ClienteInfo *cliente = (ClienteInfo *)arg;
     char buffer[BUFFER_SIZE];
     char respuesta[256];
+    char room_actual[16] = "";  // sala en la que está el jugador
+    char rol_actual[16] = "";   // rol del jugador
 
     printf("Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
     fprintf(cliente->log_file, "Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
@@ -95,19 +97,122 @@ void *atender_cliente(void *arg) {
                 }
                 int x, y;
                 if (game_unir_jugador(msg.params[0], cliente->fd, "jugador", msg.params[1], &x, &y) == 0) {
-                    char datos[128];
+                    strncpy(room_actual, msg.params[0], sizeof(room_actual) - 1);
+                    strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
+                    char datos[256];
                     snprintf(datos, sizeof(datos), "%s ROLE=%s POS=%d,%d", msg.params[0], msg.params[1], x, y);
                     construir_respuesta(respuesta, "JOIN", datos);
+
+                    // Notificar a los demás jugadores de la sala
+                    char notify[128];
+                    snprintf(notify, sizeof(notify), "NOTIFY PLAYER_JOIN jugador\n");
+                    game_notificar_sala(room_actual, cliente->fd, notify);
                 } else {
-                    construir_error(respuesta, 404, "Sala no existe o está llena");
+                    construir_error(respuesta, 404, "Sala no existe o esta llena");
                 }
                 break;
             }
-
             case VERB_LIST_ROOMS: {
                 char lista[256];
                 game_listar_salas(lista);
                 construir_respuesta(respuesta, "LIST_ROOMS", lista);
+                break;
+            }
+
+            case VERB_MOVE: {
+                if (msg.num_params < 2) {
+                    construir_error(respuesta, 400, "MOVE requiere dx y dy");
+                    break;
+                }
+                if (strlen(room_actual) == 0) {
+                    construir_error(respuesta, 401, "Debes unirte a una sala primero");
+                    break;
+                }
+                int dx = atoi(msg.params[0]);
+                int dy = atoi(msg.params[1]);
+                int nx, ny;
+                char notify_found[256] = "";
+
+                if (game_mover_jugador(room_actual, cliente->fd, dx, dy, &nx, &ny, notify_found) == 0) {
+                    char datos[64];
+                    snprintf(datos, sizeof(datos), "POS=%d,%d", nx, ny);
+                    construir_respuesta(respuesta, "MOVE", datos);
+
+                    // Si el atacante encontró un recurso, notificarlo solo a él
+                    if (strlen(notify_found) > 0) {
+                        send(cliente->fd, notify_found, strlen(notify_found), 0);
+                    }
+                } else {
+                    construir_error(respuesta, 400, "Movimiento fuera de los limites");
+                }
+                break;
+            }
+
+            case VERB_SCAN: {
+                if (strlen(room_actual) == 0) {
+                    construir_error(respuesta, 401, "Debes unirte a una sala primero");
+                    break;
+                }
+                if (strcmp(rol_actual, "atacante") != 0) {
+                    construir_error(respuesta, 403, "Solo atacantes pueden usar SCAN");
+                    break;
+                }
+                game_scan(room_actual, cliente->fd, respuesta);
+                // game_scan ya construye la respuesta completa
+                send(cliente->fd, respuesta, strlen(respuesta), 0);
+                printf("[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
+                fprintf(cliente->log_file, "[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
+                fflush(cliente->log_file);
+                continue;
+            }
+
+            case VERB_ATTACK: {
+                if (msg.num_params < 1) {
+                    construir_error(respuesta, 400, "ATTACK requiere resource_id");
+                    break;
+                }
+                if (strcmp(rol_actual, "atacante") != 0) {
+                    construir_error(respuesta, 403, "Solo atacantes pueden usar ATTACK");
+                    break;
+                }
+                int resultado = game_atacar(room_actual, cliente->fd, msg.params[0]);
+                if (resultado == 0) {
+                    construir_respuesta(respuesta, "ATTACK", msg.params[0]);
+                    char notify[128];
+                    snprintf(notify, sizeof(notify), "NOTIFY ATTACK %s\n", msg.params[0]);
+                    game_notificar_sala(room_actual, cliente->fd, notify);
+                } else if (resultado == -2) {
+                    construir_error(respuesta, 410, "No estas en la celda del recurso");
+                } else if (resultado == -3) {
+                    construir_error(respuesta, 411, "El recurso no esta en estado safe");
+                } else {
+                    construir_error(respuesta, 404, "Recurso no encontrado");
+                }
+                break;
+            }
+
+            case VERB_MITIGATE: {
+                if (msg.num_params < 1) {
+                    construir_error(respuesta, 400, "MITIGATE requiere resource_id");
+                    break;
+                }
+                if (strcmp(rol_actual, "defensor") != 0) {
+                    construir_error(respuesta, 403, "Solo defensores pueden usar MITIGATE");
+                    break;
+                }
+                int resultado = game_mitigar(room_actual, cliente->fd, msg.params[0]);
+                if (resultado == 0) {
+                    construir_respuesta(respuesta, "MITIGATE", msg.params[0]);
+                    char notify[128];
+                    snprintf(notify, sizeof(notify), "NOTIFY MITIGATED %s\n", msg.params[0]);
+                    game_notificar_sala(room_actual, cliente->fd, notify);
+                } else if (resultado == -2) {
+                    construir_error(respuesta, 410, "No estas en la celda del recurso");
+                } else if (resultado == -3) {
+                    construir_error(respuesta, 411, "El recurso no esta bajo ataque");
+                } else {
+                    construir_error(respuesta, 404, "Recurso no encontrado");
+                }
                 break;
             }
         }
