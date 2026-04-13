@@ -14,3 +14,14 @@ client-c/client
 .env
 
 __pycache__/.env
+
+
+# Python
+client-python/__pycache__/
+client-python/.venv/
+
+# Ejecutables y logs
+server/server
+server/dns_server
+*.txt
+*.log

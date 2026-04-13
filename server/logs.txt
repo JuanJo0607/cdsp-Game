@@ -176,3 +176,709 @@ Cliente conectado: 127.0.0.1:49122
 [127.0.0.1:49122] Enviado: OK MOVE POS=5,5
 [127.0.0.1:49122] Recibido: MITIGATE srv_01
 [127.0.0.1:49122] Enviado: OK MITIGATE srv_01
+Cliente conectado: 127.0.0.1:57460
+[127.0.0.1:57460] Recibido: AUTH juan
+[127.0.0.1:57460] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:57460] Recibido: LIST_ROOMS
+[127.0.0.1:57460] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:57460] Recibido: CREATE_ROOM
+[127.0.0.1:57460] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:57460] Recibido: LIST_ROOMS
+[127.0.0.1:57460] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:57460] Recibido: CREATE_ROOM
+[127.0.0.1:57460] Enviado: OK CREATE_ROOM room_002
+[127.0.0.1:57460] Recibido: LIST_ROOMS
+[127.0.0.1:57460] Enviado: OK LIST_ROOMS 2 room_001 room_002 
+[127.0.0.1:57460] Recibido: CREATE_ROOM
+[127.0.0.1:57460] Enviado: OK CREATE_ROOM room_003
+[127.0.0.1:57460] Recibido: JOIN room_001 attacker
+[127.0.0.1:57460] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+[127.0.0.1:57460] Recibido: MOVE 0 1
+[127.0.0.1:57460] Enviado: OK MOVE POS=0,1
+[127.0.0.1:57460] Recibido: MOVE 1 0
+[127.0.0.1:57460] Enviado: OK MOVE POS=1,1
+[127.0.0.1:57460] Recibido: MOVE 1 0
+[127.0.0.1:57460] Enviado: OK MOVE POS=2,1
+[127.0.0.1:57460] Recibido: MOVE 1 0
+[127.0.0.1:57460] Enviado: OK MOVE POS=3,1
+[127.0.0.1:57460] Recibido: MOVE 1 0
+[127.0.0.1:57460] Enviado: OK MOVE POS=4,1
+[127.0.0.1:57460] Recibido: MOVE 0 1
+[127.0.0.1:57460] Enviado: OK MOVE POS=4,2
+[127.0.0.1:57460] Recibido: MOVE 0 1
+[127.0.0.1:57460] Enviado: OK MOVE POS=4,3
+[127.0.0.1:57460] Recibido: MOVE 0 1
+[127.0.0.1:57460] Enviado: OK MOVE POS=4,4
+[127.0.0.1:57460] Recibido: MOVE 0 1
+[127.0.0.1:57460] Enviado: OK MOVE POS=4,5
+[127.0.0.1:57460] Recibido: MOVE 1 0
+[127.0.0.1:57460] Enviado: OK MOVE POS=5,5
+Cliente conectado: 127.0.0.1:41032
+[127.0.0.1:41032] Recibido: AUTH andres
+[127.0.0.1:41032] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:41032] Recibido: LIST_ROOMS
+[127.0.0.1:41032] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:41032] Recibido: LIST_ROOMS
+[127.0.0.1:41032] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:41032] Recibido: LIST_ROOMS
+[127.0.0.1:41032] Enviado: OK LIST_ROOMS 0 
+Cliente desconectado: 127.0.0.1:41032
+Cliente desconectado: 127.0.0.1:57460
+Cliente conectado: 127.0.0.1:60436
+[127.0.0.1:60436] Recibido: AUTH juan
+[127.0.0.1:60436] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:60436] Recibido: CREATE_ROOM
+[127.0.0.1:60436] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:60436] Recibido: LIST_ROOMS
+[127.0.0.1:60436] Enviado: OK LIST_ROOMS 1 room_001 
+Cliente conectado: 127.0.0.1:46346
+[127.0.0.1:46346] Recibido: AUTH andres
+[127.0.0.1:46346] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:46346] Recibido: LIST_ROOMS
+[127.0.0.1:46346] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:60436] Recibido: JOIN room_001 attacker
+[127.0.0.1:60436] Enviado: ERR 404 "Sala no existe o esta llena"
+[127.0.0.1:60436] Recibido: CREATE_ROOM
+[127.0.0.1:60436] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:60436] Recibido: CREATE_ROOM
+[127.0.0.1:60436] Enviado: OK CREATE_ROOM room_002
+[127.0.0.1:60436] Recibido: JOIN room_002 attacker
+[127.0.0.1:60436] Enviado: OK JOIN room_002 ROLE=attacker POS=0,0
+[127.0.0.1:46346] Recibido: LIST_ROOMS
+[127.0.0.1:46346] Enviado: OK LIST_ROOMS 2 room_001 room_002 
+[127.0.0.1:46346] Recibido: JOIN room_002 defender
+[127.0.0.1:46346] Enviado: OK JOIN room_002 ROLE=defender POS=0,0
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=1,0
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=2,0
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,0
+[127.0.0.1:46346] Recibido: MOVE 0 1
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,1
+[127.0.0.1:46346] Recibido: MOVE 0 1
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,2
+[127.0.0.1:46346] Recibido: MOVE 0 1
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,3
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=1,0
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=2,0
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=3,0
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=3,1
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=3,2
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=3,3
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT none
+[127.0.0.1:60436] Recibido: MOVE -1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=2,3
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT none
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=3,3
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:46346] Recibido: MITIGATE srv_01
+[127.0.0.1:46346] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: STATUS
+[127.0.0.1:60436] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT none
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: STATUS
+[127.0.0.1:60436] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:46346] Recibido: STATUS
+[127.0.0.1:46346] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:46346] Recibido: MITIGATE srv_01
+[127.0.0.1:46346] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT none
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: STATUS
+[127.0.0.1:60436] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:60436] Recibido: MOVE -1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=2,3
+[127.0.0.1:60436] Recibido: MOVE -1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=1,3
+[127.0.0.1:60436] Recibido: MOVE -1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=0,3
+[127.0.0.1:46346] Recibido: MOVE -1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=2,3
+[127.0.0.1:46346] Recibido: MOVE -1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=1,3
+[127.0.0.1:46346] Recibido: MOVE -1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=0,3
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: STATUS
+[127.0.0.1:60436] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:46346] Recibido: STATUS
+[127.0.0.1:46346] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:60436] Recibido: MOVE 0 -1
+[127.0.0.1:60436] Enviado: OK MOVE POS=0,2
+[127.0.0.1:60436] Recibido: MOVE 0 -1
+[127.0.0.1:60436] Enviado: OK MOVE POS=0,1
+[127.0.0.1:60436] Recibido: MOVE 0 -1
+[127.0.0.1:60436] Enviado: OK MOVE POS=0,0
+[127.0.0.1:60436] Recibido: MOVE 0 -1
+[127.0.0.1:60436] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=1,0
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=2,0
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=3,0
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,0
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,1
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,2
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,3
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,4
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,5
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:60436] Recibido: MOVE 0 -1
+[127.0.0.1:60436] Enviado: OK MOVE POS=4,4
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:60436] Recibido: STATUS
+[127.0.0.1:60436] Enviado: ERR 400 "Verbo desconocido"
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:60436] Recibido: MOVE 1 0
+[127.0.0.1:60436] Enviado: OK MOVE POS=5,4
+[127.0.0.1:60436] Recibido: MOVE 0 1
+[127.0.0.1:60436] Enviado: OK MOVE POS=5,5
+[127.0.0.1:60436] Recibido: SCAN
+[127.0.0.1:60436] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:60436] Recibido: ATTACK srv_01
+[127.0.0.1:60436] Enviado: OK ATTACK srv_01
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=1,3
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=2,3
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,3
+[127.0.0.1:46346] Recibido: MOVE 0 1
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,4
+[127.0.0.1:46346] Recibido: MOVE 0 1
+[127.0.0.1:46346] Enviado: OK MOVE POS=3,5
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=4,5
+[127.0.0.1:46346] Recibido: MOVE 1 0
+[127.0.0.1:46346] Enviado: OK MOVE POS=5,5
+[127.0.0.1:46346] Recibido: MITIGATE srv_01
+[127.0.0.1:46346] Enviado: OK MITIGATE srv_01
+[127.0.0.1:60436] Recibido: STATUS
+[127.0.0.1:60436] Enviado: ERR 400 "Verbo desconocido"
+Cliente desconectado: 127.0.0.1:46346
+Cliente desconectado: 127.0.0.1:60436
+Cliente desconectado: 127.0.0.1:49122
+Cliente desconectado: 127.0.0.1:49118
+Cliente conectado: 127.0.0.1:33418
+Cliente desconectado: 127.0.0.1:33418
+Cliente conectado: 127.0.0.1:39448
+[127.0.0.1:39448] Recibido: AUTH juan
+[127.0.0.1:39448] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:39448] Recibido: CREATE_ROOM
+[127.0.0.1:39448] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:39448] Recibido: LIST_ROOMS
+[127.0.0.1:39448] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:39448] Recibido: JOIN room_001 attacker
+[127.0.0.1:39448] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+Cliente conectado: 127.0.0.1:39280
+[127.0.0.1:39280] Recibido: AUTH andres
+[127.0.0.1:39280] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:39280] Recibido: LIST_ROOMS
+[127.0.0.1:39280] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:39280] Recibido: LIST_ROOMS
+[127.0.0.1:39280] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:39280] Recibido: LIST_ROOMS
+[127.0.0.1:39280] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:39280] Recibido: LIST_ROOMS
+[127.0.0.1:39280] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:39280] Recibido: LIST_ROOMS
+[127.0.0.1:39280] Enviado: OK LIST_ROOMS 0 
+[127.0.0.1:39280] Recibido: CREATE_ROOM
+[127.0.0.1:39280] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:39280] Recibido: LIST_ROOMS
+[127.0.0.1:39280] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:39280] Recibido: JOIN room_001 defender
+[127.0.0.1:39280] Enviado: OK JOIN room_001 ROLE=defender POS=0,0 RESOURCES=srv_01:5,5;srv_02:15,15
+[127.0.0.1:39448] Recibido: MOVE 1 0
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: MOVE 1 0
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: MOVE 0 1
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: SCAN
+[127.0.0.1:39448] Enviado: SCAN_RESULT none
+[127.0.0.1:39448] Recibido: MOVE -1 0
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: MOVE 0 -1
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39280] Recibido: MOVE 0 1
+[127.0.0.1:39280] Enviado: OK MOVE POS=0,1
+[127.0.0.1:39280] Recibido: MOVE 0 1
+[127.0.0.1:39280] Enviado: OK MOVE POS=0,2
+[127.0.0.1:39280] Recibido: MOVE 0 1
+[127.0.0.1:39280] Enviado: OK MOVE POS=0,3
+[127.0.0.1:39280] Recibido: MOVE 1 0
+[127.0.0.1:39280] Enviado: OK MOVE POS=1,3
+[127.0.0.1:39280] Recibido: MOVE 1 0
+[127.0.0.1:39280] Enviado: OK MOVE POS=2,3
+[127.0.0.1:39280] Recibido: MOVE 1 0
+[127.0.0.1:39280] Enviado: OK MOVE POS=3,3
+[127.0.0.1:39280] Recibido: MOVE 1 0
+[127.0.0.1:39280] Enviado: OK MOVE POS=4,3
+[127.0.0.1:39280] Recibido: MOVE 0 -1
+[127.0.0.1:39280] Enviado: OK MOVE POS=4,2
+[127.0.0.1:39280] Recibido: MOVE 0 -1
+[127.0.0.1:39280] Enviado: OK MOVE POS=4,1
+[127.0.0.1:39280] Recibido: MOVE 0 1
+[127.0.0.1:39280] Enviado: OK MOVE POS=4,2
+[127.0.0.1:39448] Recibido: MOVE 0 1
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: MOVE 0 1
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: MOVE 0 1
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+[127.0.0.1:39448] Recibido: MOVE 1 0
+[127.0.0.1:39448] Enviado: ERR 400 "Movimiento fuera de los limites"
+Cliente conectado: 127.0.0.1:50632
+[127.0.0.1:50632] Recibido: AUTH juan
+[127.0.0.1:50632] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:50632] Recibido: CREATE_ROOM
+[127.0.0.1:50632] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:50632] Recibido: LIST_ROOMS
+[127.0.0.1:50632] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:50632] Recibido: LIST_ROOMS
+[127.0.0.1:50632] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:50632] Recibido: JOIN room_001 attacker
+[127.0.0.1:50632] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+[127.0.0.1:50632] Recibido: MOVE 0 1
+[127.0.0.1:50632] Enviado: OK MOVE POS=0,1
+[127.0.0.1:50632] Recibido: MOVE 1 0
+[127.0.0.1:50632] Enviado: OK MOVE POS=1,1
+[127.0.0.1:50632] Recibido: MOVE 1 0
+[127.0.0.1:50632] Enviado: OK MOVE POS=2,1
+[127.0.0.1:50632] Recibido: MOVE 1 0
+[127.0.0.1:50632] Enviado: OK MOVE POS=3,1
+[127.0.0.1:50632] Recibido: MOVE 0 1
+[127.0.0.1:50632] Enviado: OK MOVE POS=3,2
+Cliente conectado: 127.0.0.1:54264
+[127.0.0.1:54264] Recibido: AUTH andres
+[127.0.0.1:54264] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:54264] Recibido: LIST_ROOMS
+[127.0.0.1:54264] Enviado: OK LIST_ROOMS 0 
+Cliente desconectado: 127.0.0.1:50632
+Cliente desconectado: 127.0.0.1:54264
+Cliente conectado: 127.0.0.1:56820
+[127.0.0.1:56820] Recibido: AUTH juan
+[127.0.0.1:56820] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:56820] Recibido: CREATE_ROOM
+[127.0.0.1:56820] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:56820] Recibido: JOIN room_001 attacker
+[127.0.0.1:56820] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+Cliente conectado: 127.0.0.1:37818
+[127.0.0.1:37818] Recibido: AUTH andres
+[127.0.0.1:37818] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:37818] Recibido: LIST_ROOMS
+[127.0.0.1:37818] Enviado: OK LIST_ROOMS 0 
+Cliente conectado: 127.0.0.1:47590
+[127.0.0.1:47590] Recibido: AUTH juan
+[127.0.0.1:47590] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:47590] Recibido: CREATE_ROOM
+[127.0.0.1:47590] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:47590] Recibido: JOIN room_001 attacker
+[127.0.0.1:47590] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+Cliente conectado: 127.0.0.1:47596
+[127.0.0.1:47596] Recibido: AUTH andres
+[127.0.0.1:47596] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:47596] Recibido: LIST_ROOMS
+[127.0.0.1:47596] Enviado: OK LIST_ROOMS 0 
+Cliente desconectado: 127.0.0.1:47590
+Cliente desconectado: 127.0.0.1:47596
+Cliente conectado: 127.0.0.1:59590
+[127.0.0.1:59590] Recibido: AUTH juan
+[127.0.0.1:59590] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:59590] Recibido: CREATE_ROOM
+[127.0.0.1:59590] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:59590] Recibido: LIST_ROOMS
+[127.0.0.1:59590] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:59590] Recibido: JOIN room_001 attacker
+[127.0.0.1:59590] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+Cliente conectado: 127.0.0.1:59606
+[127.0.0.1:59606] Recibido: AUTH andres
+[127.0.0.1:59606] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:59606] Recibido: LIST_ROOMS
+[127.0.0.1:59606] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:59606] Recibido: JOIN room_001 defender
+[127.0.0.1:59606] Enviado: OK JOIN room_001 ROLE=defender POS=0,0 RESOURCES=srv_01:5,5;srv_02:15,15
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=0,1
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=0,2
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=0,3
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=0,4
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=0,5
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=1,5
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=2,5
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=3,5
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=4,5
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,5
+[127.0.0.1:59590] Recibido: ATTACK srv_01
+[127.0.0.1:59590] Enviado: OK ATTACK srv_01
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=1,0
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=2,0
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=3,0
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=4,0
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,0
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,1
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,2
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,3
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,4
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,5
+[127.0.0.1:59606] Recibido: MITIGATE srv_01
+[127.0.0.1:59606] Enviado: OK MITIGATE srv_01
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,6
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,7
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,6
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,7
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,8
+[127.0.0.1:59590] Recibido: SCAN
+[127.0.0.1:59590] Enviado: SCAN_RESULT none
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,9
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,10
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,11
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,12
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=5,13
+[127.0.0.1:59590] Recibido: SCAN
+[127.0.0.1:59590] Enviado: SCAN_RESULT none
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=6,13
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=7,13
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=8,13
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=9,13
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=10,13
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=11,13
+[127.0.0.1:59590] Recibido: SCAN
+[127.0.0.1:59590] Enviado: SCAN_RESULT none
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=11,14
+[127.0.0.1:59590] Recibido: MOVE 0 1
+[127.0.0.1:59590] Enviado: OK MOVE POS=11,15
+[127.0.0.1:59590] Recibido: SCAN
+[127.0.0.1:59590] Enviado: SCAN_RESULT none
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=12,15
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=13,15
+[127.0.0.1:59590] Recibido: SCAN
+[127.0.0.1:59590] Enviado: SCAN_RESULT none
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=14,15
+[127.0.0.1:59590] Recibido: MOVE 1 0
+[127.0.0.1:59590] Enviado: OK MOVE POS=15,15
+[127.0.0.1:59590] Recibido: SCAN
+[127.0.0.1:59590] Enviado: SCAN_RESULT found srv_02
+[127.0.0.1:59590] Recibido: ATTACK srv_02
+[127.0.0.1:59590] Enviado: OK ATTACK srv_02
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,8
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,9
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,10
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,11
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,12
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,13
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,14
+[127.0.0.1:59606] Recibido: MOVE 0 1
+[127.0.0.1:59606] Enviado: OK MOVE POS=5,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=6,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=7,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=8,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=9,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=10,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=11,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=12,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=13,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=14,15
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=15,15
+[127.0.0.1:59606] Recibido: MITIGATE srv_01
+[127.0.0.1:59606] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:59606] Recibido: MOVE 1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=16,15
+[127.0.0.1:59606] Recibido: MOVE -1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=15,15
+[127.0.0.1:59606] Recibido: MITIGATE srv_01
+[127.0.0.1:59606] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:59606] Recibido: MITIGATE srv_02
+[127.0.0.1:59606] Enviado: OK MITIGATE srv_02
+[127.0.0.1:59606] Recibido: MOVE -1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=14,15
+[127.0.0.1:59606] Recibido: MOVE -1 0
+[127.0.0.1:59606] Enviado: OK MOVE POS=13,15
+[127.0.0.1:59590] Recibido: ATTACK srv_02
+[127.0.0.1:59590] Enviado: ERR 411 "El recurso no esta en estado safe"
+Cliente desconectado: 127.0.0.1:59606
+Cliente desconectado: 127.0.0.1:59590
+Cliente conectado: 127.0.0.1:43526
+[127.0.0.1:43526] Recibido: AUTH juan
+[127.0.0.1:43526] Enviado: OK AUTH "juan" ROLE=attacker
+[127.0.0.1:43526] Recibido: CREATE_ROOM
+[127.0.0.1:43526] Enviado: OK CREATE_ROOM room_001
+[127.0.0.1:43526] Recibido: JOIN room_001 attacker
+[127.0.0.1:43526] Enviado: OK JOIN room_001 ROLE=attacker POS=0,0
+Cliente conectado: 127.0.0.1:43536
+[127.0.0.1:43536] Recibido: AUTH andres
+[127.0.0.1:43536] Enviado: OK AUTH "andres" ROLE=defender
+[127.0.0.1:43536] Recibido: LIST_ROOMS
+[127.0.0.1:43536] Enviado: OK LIST_ROOMS 1 room_001 
+[127.0.0.1:43536] Recibido: JOIN room_001 defender
+[127.0.0.1:43536] Enviado: OK JOIN room_001 ROLE=defender POS=0,0 RESOURCES=srv_01:5,5;srv_02:15,15
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=0,1
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=0,2
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=0,3
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=0,4
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=0,5
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=0,6
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=1,6
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=2,6
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=3,6
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=4,6
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,6
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=6,6
+[127.0.0.1:43526] Recibido: SCAN
+[127.0.0.1:43526] Enviado: SCAN_RESULT found srv_01
+[127.0.0.1:43526] Recibido: ATTACK srv_01
+[127.0.0.1:43526] Enviado: ERR 410 "No estas en la celda del recurso"
+[127.0.0.1:43526] Recibido: MOVE 0 -1
+[127.0.0.1:43526] Enviado: OK MOVE POS=6,5
+[127.0.0.1:43526] Recibido: MOVE -1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,5
+[127.0.0.1:43526] Recibido: ATTACK srv_01
+[127.0.0.1:43526] Enviado: OK ATTACK srv_01
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,1
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,2
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,3
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,4
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,5
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,6
+[127.0.0.1:43536] Recibido: MOVE 0 -1
+[127.0.0.1:43536] Enviado: OK MOVE POS=0,5
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=1,5
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=2,5
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=3,5
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=4,5
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=5,5
+[127.0.0.1:43536] Recibido: MITIGATE srv_01
+[127.0.0.1:43536] Enviado: OK MITIGATE srv_01
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=5,6
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=6,6
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=7,6
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=8,6
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=9,6
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,6
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,6
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,7
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,8
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,9
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,10
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,11
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,12
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=5,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=6,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=7,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=8,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=9,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=10,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=11,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=12,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=13,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=14,13
+[127.0.0.1:43526] Recibido: MOVE 1 0
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,13
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,14
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,15
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,16
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,17
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,18
+[127.0.0.1:43526] Recibido: MOVE 0 1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,19
+[127.0.0.1:43526] Recibido: MOVE 0 -1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,18
+[127.0.0.1:43526] Recibido: MOVE 0 -1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,17
+[127.0.0.1:43526] Recibido: MOVE 0 -1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,16
+[127.0.0.1:43526] Recibido: MOVE 0 -1
+[127.0.0.1:43526] Enviado: OK MOVE POS=15,15
+[127.0.0.1:43526] Recibido: SCAN
+[127.0.0.1:43526] Enviado: SCAN_RESULT found srv_02
+[127.0.0.1:43526] Recibido: ATTACK srv_02
+[127.0.0.1:43526] Enviado: OK ATTACK srv_02
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,7
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,8
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,9
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,10
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,11
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,12
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,13
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,14
+[127.0.0.1:43536] Recibido: MOVE 0 1
+[127.0.0.1:43536] Enviado: OK MOVE POS=10,15
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=11,15
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=12,15
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=13,15
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=14,15
+[127.0.0.1:43536] Recibido: MOVE 1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=15,15
+[127.0.0.1:43536] Recibido: MITIGATE srv_02
+[127.0.0.1:43536] Enviado: OK MITIGATE srv_02
+[127.0.0.1:43536] Recibido: MOVE -1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=14,15
+[127.0.0.1:43536] Recibido: MOVE -1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=13,15
+[127.0.0.1:43536] Recibido: MOVE -1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=12,15
+[127.0.0.1:43536] Recibido: MOVE -1 0
+[127.0.0.1:43536] Enviado: OK MOVE POS=11,15

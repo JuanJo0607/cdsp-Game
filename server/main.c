@@ -89,9 +89,6 @@ void *atender_cliente(void *arg) {
     fprintf(cliente->log_file, "Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
     fflush(cliente->log_file);
 
-    // Inicializar estado del juego
-    game_init();
-
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
         int bytes = recv(cliente->fd, buffer, BUFFER_SIZE - 1, 0);
@@ -162,12 +159,21 @@ void *atender_cliente(void *arg) {
                 int x, y;
                 if (game_unir_jugador(msg.params[0], cliente->fd, "jugador", msg.params[1], &x, &y) == 0) {
                     strncpy(room_actual, msg.params[0], sizeof(room_actual) - 1);
-                    //strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
+                    strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
                     char datos[256];
-                    snprintf(datos, sizeof(datos), "%s ROLE=%s POS=%d,%d", msg.params[0], msg.params[1], x, y);
-                    construir_respuesta(respuesta, "JOIN", datos);
 
-                    // Notificar a los demás jugadores de la sala
+                    // Si es defensor, incluir posiciones de recursos
+                    if (strcmp(rol_actual, "defender") == 0) {
+                        snprintf(datos, sizeof(datos),
+                            "%s ROLE=%s POS=%d,%d RESOURCES=srv_01:5,5;srv_02:15,15",
+                            msg.params[0], msg.params[1], x, y);
+                    } else {
+                        snprintf(datos, sizeof(datos),
+                            "%s ROLE=%s POS=%d,%d",
+                            msg.params[0], msg.params[1], x, y);
+                    }
+
+                    construir_respuesta(respuesta, "JOIN", datos);
                     char notify[128];
                     snprintf(notify, sizeof(notify), "NOTIFY PLAYER_JOIN jugador\n");
                     game_notificar_sala(room_actual, cliente->fd, notify);
@@ -176,6 +182,8 @@ void *atender_cliente(void *arg) {
                 }
                 break;
             }
+
+
             case VERB_LIST_ROOMS: {
                 char lista[256];
                 game_listar_salas(lista);
@@ -184,6 +192,9 @@ void *atender_cliente(void *arg) {
             }
 
             case VERB_MOVE: {
+                //Print temporal
+                printf("DEBUG MOVE: room_actual='%s' rol_actual='%s'\n", room_actual, rol_actual);
+
                 if (msg.num_params < 2) {
                     construir_error(respuesta, 400, "MOVE requiere dx y dy");
                     break;
@@ -333,6 +344,9 @@ int main(int argc, char *argv[]) {
 
     listen(server_fd, MAX_CLIENTES);
     printf("Servidor escuchando en puerto %d...\n", puerto);
+
+    // Inicializar estado del juego
+    game_init();
 
     // Bucle principal: acepta clientes indefinidamente
     while (1) {
