@@ -1,7 +1,26 @@
 # CDSP Game — Cyber Defense Simulation Protocol
 
-Juego multijugador de simulación de ciberseguridad.  
-Internet: Arquitectura y Protocolos · 2026-1
+Juego multijugador distribuido para simulación de ciberseguridad, desarrollado como parte del curso **Internet: Arquitectura y Protocolos (2026-1)**.
+
+El sistema simula un entorno de red donde múltiples jugadores interactúan en tiempo real asumiendo roles de **Atacante** o **Defensor**, utilizando protocolos de comunicación diseñados e implementados sobre sockets.
+
+---
+
+## Descripción del sistema
+
+Este proyecto implementa una arquitectura distribuida compuesta por:
+
+- Un **servidor principal (C)** que gestiona la lógica del juego
+- Un **servicio de autenticación (Python)** independiente
+- Clientes en múltiples lenguajes (**Python y C**)
+- Resolución de nombres (simulación tipo DNS)
+
+El sistema cumple con principios reales de Internet:
+
+- No se usan direcciones IP hardcodeadas  
+- La autenticación está desacoplada  
+- Soporta múltiples clientes concurrentes  
+- Comunicación basada en un protocolo propio  
 
 ---
 
@@ -9,9 +28,29 @@ Internet: Arquitectura y Protocolos · 2026-1
 
 ```
 cdsp-game/
-├── server/           
-│   ├── main.c
-│   └── Makefile
+├── server/ # Servidor principal (C)
+│ ├── main.c
+│ ├── game.c / game.h
+│ ├── protocol.c / protocol.h
+│ ├── dns_server.c / dns_server.h
+│ ├── Makefile
+│ └── logs.txt
+│
+├── client-python/ # Cliente en Python
+│ ├── client.py
+│ ├── network.py
+│ └── gui.py
+│
+├── auth-server/ # Servicio de autenticación
+│ ├── auth_server.py
+│ └── users.json
+│
+├── auth-cliente-c/ # Cliente en C
+│ └── client.c
+│
+├── .env
+├── .env.example
+├── run.sh
 └── README.md
 ```
 
@@ -157,3 +196,55 @@ cat logs.txt
 
 **`nc: command not found`** (para las pruebas)  
 → Instala netcat: `sudo apt install netcat -y`
+
+---
+
+## Micro-Servicio DNS (UDP)
+
+Para cumplir con el **Requerimiento 3** (sin IPs hardcodeadas), hemos implementado un mini-servidor DNS que resuelve nombres como `server.cdsp`.
+
+### Cómo usar el DNS
+1. Compila los servidores: `cd server && make`
+2. Ejecuta el servidor DNS en una terminal:
+   ```bash
+   ./dns_server 5354
+   ```
+3. Ejecuta el servidor de juego en otra terminal:
+   ```bash
+   ./server 8080 logs.txt
+   ```
+4. En el cliente Python, usa `server.cdsp` en el campo "Server Host". El cliente resolverá automáticamente la IP vía UDP antes de conectar por TCP.
+
+---
+
+## Cliente Gráfico (Python)
+
+El proyecto incluye un cliente con interfaz gráfica para una experiencia de juego completa.
+
+### Requisitos
+- Python 3.x
+- Tkinter (usualmente incluido en Python)
+  
+```bash
+sudo apt install python3-tk
+```
+
+
+### Cómo ejecutar el cliente
+1. Asegúrate de que el servidor esté corriendo en WSL/Linux.
+2. En Linux (o Windows), abre una terminal y navega a la carpeta del proyecto.
+3. Ejecuta:
+
+   ```bash
+   python client-python/client.py
+   ```
+
+---
+### Condición de Victoria
+- **Atacante**: Gana si logra comprometer los 2 servidores del sistema.
+- **Defensor**: Gana si logra evitar que comprometan los servidores durante **5 minutos** (Tiempo global de partida).
+
+
+---
+
+
