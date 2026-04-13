@@ -9,8 +9,12 @@ Internet: Arquitectura y Protocolos · 2026-1
 
 ```
 cdsp-game/
-├── server/           
+├── server/
 │   ├── main.c
+│   ├── protocol.c
+│   ├── protocol.h
+│   ├── game.c
+│   ├── game.h
 │   └── Makefile
 └── README.md
 ```
@@ -45,7 +49,7 @@ Abre PowerShell como administrador y ejecuta:
 wsl --install
 ```
 
-Reinicia el equipo cuando te lo pida.
+Reinicia el equipo si te lo piden.
 
 **Paso 2 — Abrir Ubuntu**
 
@@ -72,12 +76,25 @@ make --version
 ## Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/cdsp-game.git
-cd cdsp-game
+git clone https://github.com/JuanJo0607/cdsp-Game.git
+cd cdsp-Game
 ```
-
-> Reemplaza `TU_USUARIO` con el usuario de GitHub del equipo.
-
+### Bajar todas las ramas del repositorio al local
+```bash
+git branch -r | grep -v '\->' | grep -v 'HEAD' | while read remote; do git checkout --track "$remote"; done
+```
+Ahora verifica si todas las ramas del repositorio se bajaron correctamente:
+```bash
+git branch 
+```
+Si todo salió bien, deberás ver algo como lo siguiente:
+```bash
+  auth-cliente-c
+  cliente-python
+  dev
+* main
+  server
+```
 ---
 
 ## Compilar el servidor
@@ -90,7 +107,7 @@ make
 Si todo está bien verás algo como:
 
 ```
-gcc -Wall -pthread -o server main.c
+gcc -Wall -pthread -o server main.c protocol.c game.c
 ```
 
 Para limpiar los archivos compilados:
@@ -123,14 +140,31 @@ Servidor escuchando en puerto 8080...
 
 ## Probar el servidor
 
-Abre **otra terminal** (o pestaña) y ejecuta:
+Abre **otra terminal** y conéctate con:
 
 ```bash
-echo "Hola Servidor | nc localhost 8080
+nc localhost 8080
 ```
 
-En la terminal del servidor deberías ver el mensaje recibido.  
-En esta terminal deberías ver la respuesta del servidor.
+Una vez conectado puedes enviar comandos del protocolo CDSP uno por uno:
+
+```
+AUTH juanito
+CREATE_ROOM
+LIST_ROOMS
+JOIN room_001 atacante
+QUIT
+```
+
+Respuestas esperadas:
+
+```
+OK AUTH "juanito" ROLE=atacante
+OK CREATE_ROOM room_001
+OK LIST_ROOMS 1 room_001
+OK JOIN room_001 ROLE=atacante POS=0,0
+OK QUIT
+```
 
 ---
 
@@ -150,10 +184,11 @@ cat logs.txt
 → Ejecuta `sudo apt install make -y`
 
 **`bind: Address already in use`**  
-→ El puerto ya está en uso. Cambia el puerto o espera un momento y vuelve a intentarlo:
+→ El puerto ya está en uso. Cambia el puerto o espera un momento:
+
 ```bash
 ./server 8081 logs.txt
 ```
 
-**`nc: command not found`** (para las pruebas)  
+**`nc: command not found`**  
 → Instala netcat: `sudo apt install netcat -y`
