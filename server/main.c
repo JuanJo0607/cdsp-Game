@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include <netdb.h>
 #include "protocol.h" 
 #include "game.h"
 
@@ -17,6 +18,64 @@ typedef struct {
     int puerto;
     FILE *log_file;
 } ClienteInfo;
+
+
+// Consulta el rol de un usuario al auth server
+// Retorna 0 si encontró el usuario, -1 si no
+int consultar_auth_server(const char *username, char *rol_out) {
+    const char *auth_host = getenv("AUTH_SERVER");
+    const char *auth_port = getenv("AUTH_PORT");
+
+    if (!auth_host) auth_host = "127.0.0.1";
+    if (!auth_port) auth_port = "9090";
+
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family   = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+
+    // Resolver nombre de dominio — cumple Req. 3
+    if (getaddrinfo(auth_host, auth_port, &hints, &res) != 0) {
+        printf("Auth server: error resolviendo %s:%s\n", auth_host, auth_port);
+        return -1;
+    }
+
+    int sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sock < 0) {
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    if (connect(sock, res->ai_addr, res->ai_addrlen) < 0) {
+        printf("Auth server: no se pudo conectar a %s:%s\n", auth_host, auth_port);
+        close(sock);
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    freeaddrinfo(res);
+
+    // Enviar el username
+    char msg[128];
+    snprintf(msg, sizeof(msg), "%s\n", username);
+    send(sock, msg, strlen(msg), 0);
+
+    // Recibir respuesta
+    char buffer[128] = "";
+    recv(sock, buffer, sizeof(buffer) - 1, 0);
+    close(sock);
+
+    // Parsear respuesta: "OK attacker" o "ERR usuario no encontrado"
+    if (strncmp(buffer, "OK ", 3) == 0) {
+        // Extraer el rol y quitar el \n
+        strncpy(rol_out, buffer + 3, 15);
+        rol_out[strcspn(rol_out, "\n")] = '\0';
+        return 0;
+    }
+
+    return -1;
+}
+
 
 // Ejecutar cada hilo — atiende a un cliente
 void *atender_cliente(void *arg) {
@@ -57,10 +116,16 @@ void *atender_cliente(void *arg) {
                 if (msg.num_params < 1) {
                     construir_error(respuesta, 400, "AUTH requiere un username");
                 } else {
-                    // Por ahora acepta cualquier usuario — aquí irá la consulta al auth server
-                    char datos[128];
-                    snprintf(datos, sizeof(datos), "\"%s\" ROLE=atacante", msg.params[0]);
-                    construir_respuesta(respuesta, "AUTH", datos);
+                    char rol[16] = "";
+                    if (consultar_auth_server(msg.params[0], rol) == 0) {
+                        char datos[256];
+                        snprintf(datos, sizeof(datos), "\"%s\" ROLE=%s", msg.params[0], rol);
+                        construir_respuesta(respuesta, "AUTH", datos);
+                        // Guardar el rol para usarlo en los comandos del juego
+                        strncpy(rol_actual, rol, sizeof(rol_actual) - 1);
+                    } else {
+                        construir_error(respuesta, 401, "Usuario no encontrado");
+                    }
                 }
                 break;
 
@@ -260,6 +325,7 @@ int main(int argc, char *argv[]) {
     direccion.sin_addr.s_addr = INADDR_ANY;
     direccion.sin_port = htons(puerto);
 
+    
     if (bind(server_fd, (struct sockaddr *)&direccion, sizeof(direccion)) < 0) {
         printf("Error: no se pudo hacer bind al puerto %d\n", puerto);
         return 1;
