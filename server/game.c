@@ -157,7 +157,8 @@ void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje
 }
 
 // Desconectar un jugador de cualquier sala donde esté
-void game_desconectar_jugador(int fd) {
+// Retorna 1 si encontró al jugador y llenó room_id_out y username_out, 0 si no
+int game_desconectar_jugador(int fd, char *room_id_out, char *username_out) {
     pthread_mutex_lock(&mutex);
 
     for (int i = 0; i < MAX_SALAS; i++) {
@@ -166,10 +167,35 @@ void game_desconectar_jugador(int fd) {
             if (salas[i].jugadores[j].activo && salas[i].jugadores[j].fd == fd) {
                 salas[i].jugadores[j].activo = 0;
                 salas[i].num_jugadores--;
+                if (room_id_out) strcpy(room_id_out, salas[i].id);
+                if (username_out) strcpy(username_out, salas[i].jugadores[j].username);
+                pthread_mutex_unlock(&mutex);
+                return 1;
             }
         }
     }
 
+    pthread_mutex_unlock(&mutex);
+    return 0;
+}
+
+// Obtener lista de jugadores en una sala en formato "user1:x,y;user2:x,y;"
+void game_get_players_string(const char *room_id, char *buffer_out, size_t size) {
+    pthread_mutex_lock(&mutex);
+    Sala *s = game_buscar_sala(room_id);
+    if (s == NULL) {
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+    
+    buffer_out[0] = '\0';
+    for (int i = 0; i < MAX_JUGADORES; i++) {
+        if (s->jugadores[i].activo) {
+            char p[128];
+            snprintf(p, sizeof(p), "%s:%d,%d;", s->jugadores[i].username, s->jugadores[i].x, s->jugadores[i].y);
+            strncat(buffer_out, p, size - strlen(buffer_out) - 1);
+        }
+    }
     pthread_mutex_unlock(&mutex);
 }
 

@@ -1,5 +1,8 @@
 import tkinter as tk
 import random
+import webbrowser
+import platform
+import subprocess
 from tkinter import messagebox, scrolledtext
 from network import CDSPClient
 
@@ -11,19 +14,35 @@ PLAYER_COLORS = [
 
 class GameGui:
 
-    def __init__(self, root):
+    def __init__(self, root, username=None, room_id=None, role=None, host=None):
         self.root = root
         self.root.title("CDSP Game Client")
         self.root.geometry("800x600")
 
         self.client = None
-        self.username = ""
-        self.role = ""
+        self.username = username or ""
+        self.role = role or ""
+        self.room_id = room_id or ""
+        self.host = host or "server.cdsp"
+        
         self.pos = (0, 0)
         self.other_players = {}
         self.resources = {}
 
-        self._setup_login_ui()
+        if self.username and self.room_id:
+            # Entrada directa (el auth server nos dirá el rol)
+            self.root.after(100, self._direct_connect)
+        else:
+            messagebox.showerror("Error", "Este cliente debe ser lanzado desde el Portal Web.")
+            self.root.destroy()
+
+    def _direct_connect(self):
+        try:
+            self.client = CDSPClient(self.host, 8080, callback=self._on_message)
+            self.client.send(f"AUTH {self.username}")
+        except Exception as e:
+            messagebox.showerror("Error de Conexión", str(e))
+            self.root.destroy()
 
     def _proc_move(self, p):
         if len(p) < 5:
@@ -48,78 +67,23 @@ class GameGui:
         self.resources = {}
         self.other_players = {}
 
-        self.root.after(2000, self._setup_lobby_ui)
-        self.root.after(2500, lambda: self.client.send("LIST_ROOMS") if hasattr(self, "client") else None)
+        # Regresar al portal web y cerrar
+        def back_to_web():
+            portal_url = "http://localhost:8000"
+            try:
+                if "microsoft" in platform.uname().release.lower():
+                    subprocess.run(["powershell.exe", "/c", "start", portal_url], check=True)
+                else:
+                    webbrowser.open(portal_url)
+            except Exception:
+                webbrowser.open(portal_url)
+            self.root.destroy()
 
-    def _setup_login_ui(self):
-        self.login_frame = tk.Frame(self.root)
-        self.login_frame.pack(expand=True)
+        self.root.after(3000, back_to_web)
 
-        tk.Label(self.login_frame, text="Username:", font=("Arial", 12)).pack(pady=5)
-        self.user_entry = tk.Entry(self.login_frame, font=("Arial", 12))
-        self.user_entry.pack(pady=5)
-        self.user_entry.insert(0, "juan")
-
-        tk.Label(self.login_frame, text="Server Host:", font=("Arial", 10)).pack(pady=2)
-        self.host_entry = tk.Entry(self.login_frame)
-        self.host_entry.pack(pady=2)
-        self.host_entry.insert(0, "server.cdsp")
-
-        tk.Button(
-            self.login_frame, text="Conectar", command=self._connect,
-            font=("Arial", 12), bg="#28a745", fg="white"
-        ).pack(pady=20)
-
-    def _connect(self):
-        host = self.host_entry.get()
-        try:
-            self.username = self.user_entry.get()
-            self.client = CDSPClient(host, 8080, callback=self._on_message)
-            self.client.send(f"AUTH {self.username}")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
-
-    def _setup_lobby_ui(self):
-        if hasattr(self, "login_frame"):
-            self.login_frame.pack_forget()
-        if hasattr(self, "lobby_frame"):
-            self.lobby_frame.destroy()
-        if hasattr(self, "game_frame"):
-            self.game_frame.destroy()
-
-        self.lobby_frame = tk.Frame(self.root)
-        self.lobby_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-
-        tk.Label(
-            self.lobby_frame, text=f"Bienvenido, {self.username} ({self.role})",
-            font=("Arial", 14, "bold")
-        ).pack(pady=10)
-
-        btn_frame = tk.Frame(self.lobby_frame)
-        btn_frame.pack(pady=10)
-
-        tk.Button(btn_frame, text="Listar Salas", command=lambda: self.client.send("LIST_ROOMS")).pack(side=tk.LEFT, padx=5)
-        tk.Button(btn_frame, text="Crear Sala", command=lambda: self.client.send("CREATE_ROOM")).pack(side=tk.LEFT, padx=5)
-
-        self.rooms_listbox = tk.Listbox(self.lobby_frame, font=("Courier", 10))
-        self.rooms_listbox.pack(fill=tk.BOTH, expand=True, pady=10)
-
-        tk.Button(
-            self.lobby_frame, text="Unirse a Sala", command=self._join_room,
-            bg="#007bff", fg="white"
-        ).pack(pady=5)
-
-    def _join_room(self):
-        selection = self.rooms_listbox.curselection()
-        if selection:
-            room_id = self.rooms_listbox.get(selection[0]).split()[0]
-            self.client.send(f"JOIN {room_id} {self.role}")
-        else:
-            messagebox.showwarning("Aviso", "Selecciona una sala de la lista")
+        self.root.after(3000, back_to_web)
 
     def _setup_game_ui(self):
-        if hasattr(self, "lobby_frame"):
-            self.lobby_frame.pack_forget()
         self.game_frame = tk.Frame(self.root)
         self.game_frame.pack(fill=tk.BOTH, expand=True)
 
@@ -257,28 +221,19 @@ class GameGui:
                 if part.startswith("ROLE="):
                     self.role = part.split("=")[1]
                     break
-            self._setup_lobby_ui()
-
-        elif verb == "LIST_ROOMS":
-            # OK LIST_ROOMS 1 room_001 room_002
-            if hasattr(self, "rooms_listbox") and self.rooms_listbox.winfo_exists():
-                self.rooms_listbox.delete(0, tk.END)
-                for r in p[3:]:
-                    if r.strip():
-                        self.rooms_listbox.insert(tk.END, r)
-
-        elif verb == "CREATE_ROOM":
-            # OK CREATE_ROOM room_001
-            if hasattr(self, "rooms_listbox") and self.rooms_listbox.winfo_exists():
-                if len(p) > 2:
-                    self.rooms_listbox.insert(tk.END, p[2])
+            
+            if self.room_id:
+                # Si vinimos de CLI, unirse a la sala directamente
+                self.client.send(f"JOIN {self.room_id} {self.role}")
 
         elif verb == "JOIN":
-    # OK JOIN room_001 ROLE=xxx POS=x,y RESOURCES=srv_01:5,5;srv_02:15,15
+            # OK JOIN room_001 ROLE=xxx POS=x,y PLAYERS=u1:x,y;u2:x,y; RESOURCES=srv_01:5,5;srv_02:15,15
             for part in p[2:]:
                 if part.startswith("POS="):
                     coords = part.split("=")[1].split(",")
                     self.pos = (int(coords[0]), int(coords[1]))
+                elif part.startswith("PLAYERS="):
+                    self._parse_players_string(part.split("=")[1])
                 elif part.startswith("RESOURCES="):
                     res_raw = part.split("=")[1]
                     for r_item in res_raw.split(";"):
@@ -287,6 +242,20 @@ class GameGui:
                             rx, ry = rpos.split(",")
                             self.resources[rid] = {"x": int(rx), "y": int(ry), "status": "safe"}
             self._setup_game_ui()
+
+        elif verb == "STATUS":
+            # OK STATUS ROOM=room_001 TIME_LEFT=299 PLAYERS=u1:x,y;u2:x,y; RESOURCES=srv_01:safe;
+            for part in p[2:]:
+                if part.startswith("PLAYERS="):
+                    self._parse_players_string(part.split("=")[1])
+                elif part.startswith("RESOURCES="):
+                    res_raw = part.split("=")[1]
+                    for r_item in res_raw.split(";"):
+                        if ":" in r_item:
+                            rid, rstat = r_item.split(":")
+                            if rid in self.resources:
+                                self.resources[rid]["status"] = rstat
+            self._draw_grid()
 
         elif verb == "MOVE":
             for part in p[2:]:
@@ -338,6 +307,26 @@ class GameGui:
                     self.resource_entry.insert(0, rid)
         elif ntype == "GAME_OVER":
             self._proc_game_over(p)
+
+    def _parse_players_string(self, p_str):
+        if not p_str: 
+            return
+        for p_item in p_str.split(";"):
+            if ":" in p_item:
+                try:
+                    uname, pos_raw = p_item.split(":")
+                    if uname == self.username: 
+                        continue
+                    coords = pos_raw.split(",")
+                    if len(coords) == 2:
+                        self.other_players[uname] = {
+                            "x": int(coords[0]), 
+                            "y": int(coords[1]), 
+                            "color": self.other_players.get(uname, {}).get("color", random.choice(PLAYER_COLORS))
+                        }
+                except (ValueError, IndexError):
+                    continue
+        self._draw_grid()
 
     def _proc_player_joined(self, p):
         if len(p) < 5:

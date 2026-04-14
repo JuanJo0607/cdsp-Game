@@ -49,6 +49,13 @@ echo " Iniciando Auth Server..."
 python3 auth-server/auth_server.py &
 AUTH_PID=$!
 
+# ============================
+# INICIAR HTTP GATEWAY (Req 1)
+# ============================
+echo " Iniciando HTTP Gateway..."
+python3 http-server/web_server.py &
+HTTP_PID=$!
+
 
 # ============================
 # ESPERAR DNS LISTO 
@@ -71,7 +78,7 @@ echo " Auth Server listo"
 # ============================
 # CLEANUP AUTOMÁTICO
 # ============================
-trap "echo ' Cerrando procesos...'; kill $DNS_PID $AUTH_PID 2>/dev/null" EXIT
+trap "echo ' Cerrando procesos...'; kill $DNS_PID $AUTH_PID $HTTP_PID 2>/dev/null" EXIT
 
 # ============================
 # INICIAR SERVER PRINCIPAL

@@ -45,8 +45,11 @@ cdsp-game/
 │ ├── auth_server.py
 │ └── users.json
 │
-├── auth-cliente-c/ # Cliente en C
-│ └── client.c
+├── auth-cliente-c/ # Cliente en C (Terminal)
+│   └── client.c
+│
+├── http-server/     # Pasarela HTTP (Requerimiento 1)
+│   └── web_server.py
 │
 ├── .env
 ├── .env.example
@@ -217,35 +220,39 @@ Para cumplir con el **Requerimiento 3** (sin IPs hardcodeadas), hemos implementa
 
 ---
 
-## Cliente Gráfico (Python)
+## HTTP (Requerimiento 1)
 
-El proyecto incluye un cliente con interfaz gráfica para una experiencia de juego completa.
+El sistema utiliza una **Pasarela HTTP** como portal central de juegos. Desde aquí se gestionan las salas y se obtienen los comandos de lanzamiento.
 
-### Requisitos
-- Python 3.x
-- Tkinter (usualmente incluido en Python)
-  
-```bash
-sudo apt install python3-tk
-```
-
-
-### Cómo ejecutar el cliente
-1. Asegúrate de que el servidor esté corriendo en WSL/Linux.
-2. En Linux (o Windows), abre una terminal y navega a la carpeta del proyecto.
-3. Ejecuta:
-
-   ```bash
-   python client-python/client.py
-   ```
+### Cómo usar el Portal Web
+1. Ejecuta `./run.sh` para levantar todos los servicios.
+2. Abre en tu navegador: `http://localhost:8000`
+3. **Acciones**:
+   - **Crear Sala**: Registra una nueva sala en el servidor de juego.
+   - **Listar**: Muestra todas las salas activas en tiempo real.
+   - **Unirse**: Al ingresar tu nombre, el portal generará el comando exacto para tu terminal.
 
 ---
-### Condición de Victoria
-- **Atacante**: Gana si logra comprometer los 2 servidores del sistema.
-- **Defensor**: Gana si logra evitar que comprometan los servidores durante **5 minutos** (Tiempo global de partida).
 
+## Cómo ejecutar los Clientes
 
-## Compila server, auth y dns (automático)
+### 1. Cliente Gráfico (Python)
+Diseñado para la experiencia de juego completa con mapa visual.
+- **Requisitos**: `sudo apt install python3-tk`
+- **Ejecución Directa**: `python client-python/client.py`
+  *(Si se ejecuta sin parámetros, abrirá automáticamente el Portal Web).*
+
+### 2. Cliente de Terminal (C)
+Ideal para pruebas rápidas y automatización.
+- **Compilación**: `gcc auth-cliente-c/client.c -o auth-cliente-c/cliente`
+- **Ejecución**: `./auth-cliente-c/cliente`
+  *(También redirige al Portal Web si faltan argumentos).*
+
+---
+
+## Ejecución Automática
+
+El script `run.sh` compila los binarios de C y levanta todos los microservicios (Servidor, Auth, DNS y Gateway HTTP) en una sola operación.
 
 ```bash
 chmod +x run.sh

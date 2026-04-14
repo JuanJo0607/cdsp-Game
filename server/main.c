@@ -178,15 +178,21 @@ void *atender_cliente(void *arg) {
                 }
                 break;
 
-            case VERB_QUIT:
+            case VERB_QUIT: {
                 construir_respuesta(respuesta, "QUIT", NULL);
                 send(cliente->fd, respuesta, strlen(respuesta), 0);
-                printf("[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
-                fprintf(cliente->log_file, "[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
-                fflush(cliente->log_file);
+                
+                char rm[16], un[64];
+                if (game_desconectar_jugador(cliente->fd, rm, un)) {
+                    char notify[128];
+                    snprintf(notify, sizeof(notify), "NOTIFY PLAYER_LEFT %s\n", un);
+                    game_notificar_sala(rm, -1, notify);
+                }
+
                 close(cliente->fd);
                 free(cliente);
                 return NULL;
+            }
 
             case VERB_UNKNOWN:
             default:
@@ -212,17 +218,20 @@ void *atender_cliente(void *arg) {
                 if (game_unir_jugador(msg.params[0], cliente->fd, username_actual, msg.params[1], &x, &y) == 0) {
                     strncpy(room_actual, msg.params[0], sizeof(room_actual) - 1);
                     strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
-                    char datos[256];
+                    
+                    char lista_jugadores[512] = "";
+                    game_get_players_string(room_actual, lista_jugadores, sizeof(lista_jugadores));
 
+                    char datos[1024];
                     // Si es defensor, incluir posiciones de recursos
                     if (strcmp(rol_actual, "defender") == 0) {
                         snprintf(datos, sizeof(datos),
-                            "%s ROLE=%s POS=%d,%d RESOURCES=srv_01:5,5;srv_02:15,15",
-                            msg.params[0], msg.params[1], x, y);
+                            "%s ROLE=%s POS=%d,%d PLAYERS=%s RESOURCES=srv_01:5,5;srv_02:15,15",
+                            msg.params[0], msg.params[1], x, y, lista_jugadores);
                     } else {
                         snprintf(datos, sizeof(datos),
-                            "%s ROLE=%s POS=%d,%d",
-                            msg.params[0], msg.params[1], x, y);
+                            "%s ROLE=%s POS=%d,%d PLAYERS=%s",
+                            msg.params[0], msg.params[1], x, y, lista_jugadores);
                     }
 
                     construir_respuesta(respuesta, "JOIN", datos);
@@ -365,6 +374,13 @@ void *atender_cliente(void *arg) {
         printf("[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
         fprintf(cliente->log_file, "[%s:%d] Enviado: %s", cliente->ip, cliente->puerto, respuesta);
         fflush(cliente->log_file);
+    }
+
+    char rm[16], un[64];
+    if (game_desconectar_jugador(cliente->fd, rm, un)) {
+        char notify[128];
+        snprintf(notify, sizeof(notify), "NOTIFY PLAYER_LEFT %s\n", un);
+        game_notificar_sala(rm, -1, notify);
     }
 
     close(cliente->fd);

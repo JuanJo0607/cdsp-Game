@@ -58,7 +58,8 @@ int  game_unir_jugador(const char *room_id, int fd, const char *username, const 
 void game_listar_salas(char *buffer_out, size_t size);
 Sala *game_buscar_sala(const char *room_id);
 void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje);
-void game_desconectar_jugador(int fd);
+void game_get_players_string(const char *room_id, char *buffer_out, size_t size);
+int game_desconectar_jugador(int fd, char *room_id_out, char *username_out);
 int  game_mover_jugador(const char *room_id, int fd, int dx, int dy, int *x_out, int *y_out, char *notify_out);
 void game_scan(const char *room_id, int fd, char *resultado_out);
 int  game_atacar(const char *room_id, int fd, const char *resource_id);
