@@ -13,7 +13,7 @@
 typedef enum {
     RECURSO_SAFE,
     RECURSO_BAJO_ATAQUE,
-    RECURSO_MITIGADO
+    RECURSO_COMPROMETIDO
 } EstadoRecurso;
 
 // Estados posibles de una sala
@@ -27,6 +27,7 @@ typedef struct {
     char id[16];           // "srv_01", "srv_02"
     int x, y;              // Posición en el plano
     EstadoRecurso estado;
+    time_t inicio_ataque;  // Timestamp de cuando empezó el ataque
 } Recurso;
 
 // Representa un jugador conectado
@@ -46,13 +47,15 @@ typedef struct {
     Jugador jugadores[MAX_JUGADORES];
     int num_jugadores;
     Recurso recursos[MAX_RECURSOS];
+    time_t tiempo_inicio;  // Inicio de la partida
+    int terminada;         // 1 si ya hay ganador
 } Sala;
 
 // Funciones del juego
 void game_init();
 int  game_crear_sala(char *id_out);
 int  game_unir_jugador(const char *room_id, int fd, const char *username, const char *rol, int *x_out, int *y_out);
-void game_listar_salas(char *buffer_out);
+void game_listar_salas(char *buffer_out, size_t size);
 Sala *game_buscar_sala(const char *room_id);
 void game_notificar_sala(const char *room_id, int fd_emisor, const char *mensaje);
 void game_desconectar_jugador(int fd);
@@ -60,6 +63,7 @@ int  game_mover_jugador(const char *room_id, int fd, int dx, int dy, int *x_out,
 void game_scan(const char *room_id, int fd, char *resultado_out);
 int  game_atacar(const char *room_id, int fd, const char *resource_id);
 int  game_mitigar(const char *room_id, int fd, const char *resource_id);
-
+void game_tick();
+void game_status_sala(const char *room_id, char *buffer_out, size_t size);
 
 #endif

@@ -43,6 +43,14 @@ echo " Iniciando DNS..."
 DNS_PID=$!
 
 # ============================
+# INICIAR AUTH SERVER
+# ============================
+echo " Iniciando Auth Server..."
+python3 auth-server/auth_server.py &
+AUTH_PID=$!
+
+
+# ============================
 # ESPERAR DNS LISTO 
 # ============================
 echo " Esperando DNS listo..."
@@ -53,10 +61,17 @@ done
 
 echo " DNS listo"
 
+echo " Esperando Auth Server listo..."
+while ! (echo "" > /dev/tcp/127.0.0.1/9090) 2>/dev/null; do
+    sleep 0.2
+done
+echo " Auth Server listo"
+
+
 # ============================
 # CLEANUP AUTOMÁTICO
 # ============================
-trap "echo ' Cerrando DNS...'; kill $DNS_PID 2>/dev/null" EXIT
+trap "echo ' Cerrando procesos...'; kill $DNS_PID $AUTH_PID 2>/dev/null" EXIT
 
 # ============================
 # INICIAR SERVER PRINCIPAL

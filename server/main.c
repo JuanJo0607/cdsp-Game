@@ -19,13 +19,22 @@ typedef struct {
     FILE *log_file;
 } ClienteInfo;
 
+// Hilo para la lógica global (cronómetro y victorias)
+void *ciclo_juego(void *arg) {
+    while (1) {
+        game_tick();
+        sleep(1);
+    }
+    return NULL;
+}
+
 
 void registrar_en_dns(int server_port) {
     const char *dns_host = getenv("DNS_SERVER");
     const char *dns_port_str = getenv("DNS_PORT");
 
     if (!dns_host) dns_host = "127.0.0.1";
-    if (!dns_port_str) dns_port_str = "5354";
+    if (!dns_port_str) dns_port_str = "5353";
 
     int sockfd;
     struct sockaddr_in servaddr;
@@ -122,9 +131,10 @@ int consultar_auth_server(const char *username, char *rol_out) {
 void *atender_cliente(void *arg) {
     ClienteInfo *cliente = (ClienteInfo *)arg;
     char buffer[BUFFER_SIZE];
-    char respuesta[256];
-    char room_actual[16] = "";  // sala en la que está el jugador
-    char rol_actual[16] = "";   // rol del jugador
+    char respuesta[512];
+    char room_actual[16] = "";    // sala en la que está el jugador
+    char rol_actual[16] = "";     // rol del jugador
+    char username_actual[64] = ""; // nombre del jugador
 
     printf("Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
     fprintf(cliente->log_file, "Cliente conectado: %s:%d\n", cliente->ip, cliente->puerto);
@@ -159,8 +169,9 @@ void *atender_cliente(void *arg) {
                         char datos[256];
                         snprintf(datos, sizeof(datos), "\"%s\" ROLE=%s", msg.params[0], rol);
                         construir_respuesta(respuesta, "AUTH", datos);
-                        // Guardar el rol para usarlo en los comandos del juego
+                        // Guardar datos para usarlo en los comandos del juego
                         strncpy(rol_actual, rol, sizeof(rol_actual) - 1);
+                        strncpy(username_actual, msg.params[0], sizeof(username_actual) - 1);
                     } else {
                         construir_error(respuesta, 401, "Usuario no encontrado");
                     }
@@ -198,7 +209,7 @@ void *atender_cliente(void *arg) {
                     break;
                 }
                 int x, y;
-                if (game_unir_jugador(msg.params[0], cliente->fd, "jugador", msg.params[1], &x, &y) == 0) {
+                if (game_unir_jugador(msg.params[0], cliente->fd, username_actual, msg.params[1], &x, &y) == 0) {
                     strncpy(room_actual, msg.params[0], sizeof(room_actual) - 1);
                     strncpy(rol_actual,  msg.params[1], sizeof(rol_actual)  - 1);
                     char datos[256];
@@ -216,7 +227,7 @@ void *atender_cliente(void *arg) {
 
                     construir_respuesta(respuesta, "JOIN", datos);
                     char notify[128];
-                    snprintf(notify, sizeof(notify), "NOTIFY PLAYER_JOIN jugador\n");
+                    snprintf(notify, sizeof(notify), "NOTIFY PLAYER_JOIN %s %d %d\n", username_actual, x, y);
                     game_notificar_sala(room_actual, cliente->fd, notify);
                 } else {
                     construir_error(respuesta, 404, "Sala no existe o esta llena");
@@ -226,8 +237,8 @@ void *atender_cliente(void *arg) {
 
 
             case VERB_LIST_ROOMS: {
-                char lista[256];
-                game_listar_salas(lista);
+                char lista[1024]; // Aumentado para coincidir con la capacidad del servidor
+                game_listar_salas(lista, sizeof(lista));
                 construir_respuesta(respuesta, "LIST_ROOMS", lista);
                 break;
             }
@@ -253,6 +264,11 @@ void *atender_cliente(void *arg) {
                     char datos[64];
                     snprintf(datos, sizeof(datos), "POS=%d,%d", nx, ny);
                     construir_respuesta(respuesta, "MOVE", datos);
+
+                    // Notificar movimiento a los demás
+                    char notify[128];
+                    snprintf(notify, sizeof(notify), "NOTIFY MOVE %s %d %d\n", username_actual, nx, ny);
+                    game_notificar_sala(room_actual, cliente->fd, notify);
 
                     // Si el atacante encontró un recurso, notificarlo solo a él
                     if (strlen(notify_found) > 0) {
@@ -331,6 +347,17 @@ void *atender_cliente(void *arg) {
                 }
                 break;
             }
+
+            case VERB_STATUS: {
+                if (strlen(room_actual) == 0) {
+                    construir_error(respuesta, 401, "Debes unirte a una sala primero");
+                    break;
+                }
+                char status_str[1024];
+                game_status_sala(room_actual, status_str, sizeof(status_str));
+                construir_respuesta(respuesta, "STATUS", status_str);
+                break;
+            }
         }
 
         // Loggear y enviar respuesta
@@ -389,6 +416,11 @@ int main(int argc, char *argv[]) {
     // Inicializar estado del juego
     game_init();
     registrar_en_dns(puerto);
+
+    // Iniciar hilo de tick del juego
+    pthread_t hilo_tick;
+    pthread_create(&hilo_tick, NULL, ciclo_juego, NULL);
+    pthread_detach(hilo_tick);
 
     // Bucle principal: acepta clientes indefinidamente
     while (1) {

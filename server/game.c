@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 #include "game.h"
 
 #include <sys/socket.h>
@@ -95,6 +96,13 @@ int game_unir_jugador(const char *room_id, int fd, const char *username, const c
     strncpy(j->rol,      rol,      sizeof(j->rol) - 1);
     s->num_jugadores++;
 
+    // Iniciar la partida al entrar el primer jugador
+    if (s->num_jugadores == 1) {
+        s->estado = SALA_EN_JUEGO;
+        s->tiempo_inicio = time(NULL);
+        s->terminada = 0;
+    }
+
     *x_out = j->x;
     *y_out = j->y;
 
@@ -103,20 +111,20 @@ int game_unir_jugador(const char *room_id, int fd, const char *username, const c
 }
 
 // Llenar buffer_out con la lista de salas activas
-void game_listar_salas(char *buffer_out) {
+void game_listar_salas(char *buffer_out, size_t size) {
     pthread_mutex_lock(&mutex);
 
     int count = 0;
     char ids[1024] = "";
     for (int i = 0; i < MAX_SALAS; i++) {
-        if (salas[i].activa) {
+        if (salas[i].activa && !salas[i].terminada) {
             strcat(ids, salas[i].id);
             strcat(ids, " ");
             count++;
         }
     }
 
-    snprintf(buffer_out, 1024, "%d %s", count, ids);
+    snprintf(buffer_out, size, "%d %s", count, ids);
     pthread_mutex_unlock(&mutex);
 }
 
@@ -201,7 +209,7 @@ int game_mover_jugador(const char *room_id, int fd, int dx, int dy, int *x_out, 
     *y_out = ny;
 
     // Si es atacante, verificar si llegó a un recurso
-    if (strcmp(j->rol, "atacante") == 0) {
+    if (strcmp(j->rol, "attacker") == 0) {
         for (int i = 0; i < MAX_RECURSOS; i++) {
             if (s->recursos[i].x == nx && s->recursos[i].y == ny &&
                 s->recursos[i].estado == RECURSO_SAFE) {
@@ -287,6 +295,7 @@ int game_atacar(const char *room_id, int fd, const char *resource_id) {
     if (r->estado != RECURSO_SAFE) { pthread_mutex_unlock(&mutex); return -3; }
 
     r->estado = RECURSO_BAJO_ATAQUE;
+    r->inicio_ataque = time(NULL);
 
     pthread_mutex_unlock(&mutex);
     return 0;
@@ -323,8 +332,95 @@ int game_mitigar(const char *room_id, int fd, const char *resource_id) {
     // Validar que el recurso está bajo ataque
     if (r->estado != RECURSO_BAJO_ATAQUE) { pthread_mutex_unlock(&mutex); return -3; }
 
-    r->estado = RECURSO_MITIGADO;
+    r->estado = RECURSO_SAFE;
 
     pthread_mutex_unlock(&mutex);
     return 0;
+}
+
+// Bucle de lógica del juego (se llama cada segundo desde main.c)
+void game_tick() {
+    pthread_mutex_lock(&mutex);
+    time_t now = time(NULL);
+    for (int i = 0; i < MAX_SALAS; i++) {
+        Sala *s = &salas[i];
+        if (!s->activa || s->terminada) continue;
+
+        // 1. Verificar tiempo global (5 minutos = 300s) - SOLAMENTE si la partida inició
+        if (s->estado == SALA_EN_JUEGO) {
+            int tiempo_transcurrido = (int)difftime(now, s->tiempo_inicio);
+            if (tiempo_transcurrido >= 300) {
+                s->terminada = 1;
+                char msg[128];
+                snprintf(msg, sizeof(msg), "NOTIFY GAME_OVER defender 5 minutos transcurridos\n");
+                for (int k = 0; k < MAX_JUGADORES; k++) {
+                    if (s->jugadores[k].activo) send(s->jugadores[k].fd, msg, strlen(msg), 0);
+                }
+                continue;
+            }
+
+            // 2. Progreso de ataques (30s para comprometer)
+            int compromised_count = 0;
+            for (int r = 0; r < MAX_RECURSOS; r++) {
+                if (s->recursos[r].estado == RECURSO_BAJO_ATAQUE) {
+                    if (difftime(now, s->recursos[r].inicio_ataque) >= 30) {
+                        s->recursos[r].estado = RECURSO_COMPROMETIDO;
+                        char msg[128];
+                        snprintf(msg, sizeof(msg), "NOTIFY COMPROMISED %s\n", s->recursos[r].id);
+                        for (int k = 0; k < MAX_JUGADORES; k++) {
+                            if (s->jugadores[k].activo) send(s->jugadores[k].fd, msg, strlen(msg), 0);
+                        }
+                    }
+                }
+                if (s->recursos[r].estado == RECURSO_COMPROMETIDO) compromised_count++;
+            }
+
+            // 3. Verificar victoria del atacante
+            if (compromised_count >= MAX_RECURSOS) {
+                s->terminada = 1;
+                char msg[128];
+                snprintf(msg, sizeof(msg), "NOTIFY GAME_OVER attacker Todos los recursos comprometidos\n");
+                for (int k = 0; k < MAX_JUGADORES; k++) {
+                    if (s->jugadores[k].activo) send(s->jugadores[k].fd, msg, strlen(msg), 0);
+                }
+            }
+        }
+    }
+    pthread_mutex_unlock(&mutex);
+}
+
+// Genera un string con el estado completo de la sala
+void game_status_sala(const char *room_id, char *buffer_out, size_t size) {
+    pthread_mutex_lock(&mutex);
+    Sala *s = game_buscar_sala(room_id);
+    if (s == NULL) {
+        strcpy(buffer_out, "ERR_ROOM_NOT_FOUND");
+        pthread_mutex_unlock(&mutex);
+        return;
+    }
+
+    int seg_restantes = 300 - (int)difftime(time(NULL), s->tiempo_inicio);
+    if (seg_restantes < 0) seg_restantes = 0;
+
+   
+    char players[512] = "";
+    for (int i = 0; i < MAX_JUGADORES; i++) {
+        if (s->jugadores[i].activo) {
+            char p[128];
+            snprintf(p, sizeof(p), "%s:%d,%d;", s->jugadores[i].username, s->jugadores[i].x, s->jugadores[i].y);
+            strcat(players, p);
+        }
+    }
+
+    char resources[128] = "";
+    for (int i = 0; i < MAX_RECURSOS; i++) {
+        char r[64];
+        const char *st = (s->recursos[i].estado == RECURSO_SAFE) ? "safe" :
+                         (s->recursos[i].estado == RECURSO_BAJO_ATAQUE) ? "under_attack" : "compromised";
+        snprintf(r, sizeof(r), "%s:%s;", s->recursos[i].id, st);
+        strcat(resources, r);
+    }
+
+    snprintf(buffer_out, size, "ROOM=%s TIME_LEFT=%d PLAYERS=%s RESOURCES=%s", s->id, seg_restantes, players, resources);
+    pthread_mutex_unlock(&mutex);
 }

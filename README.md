@@ -245,6 +245,14 @@ sudo apt install python3-tk
 - **Defensor**: Gana si logra evitar que comprometan los servidores durante **5 minutos** (Tiempo global de partida).
 
 
+## Compila server, auth y dns (automático)
+
+```bash
+chmod +x run.sh
+./run.sh
+```
+
+
 ---
 
 
