@@ -1,253 +1,250 @@
-Readme · MD
-Copy
-
 # CDSP Game — Cyber Defense Simulation Protocol
- 
+
 Juego multijugador distribuido para simulación de ciberseguridad, desarrollado como parte del curso **Internet: Arquitectura y Protocolos (2026-1)**.
- 
+
 El sistema simula un entorno de red donde múltiples jugadores interactúan en tiempo real asumiendo roles de **Atacante** o **Defensor**, utilizando protocolos de comunicación diseñados e implementados sobre sockets.
- 
+
 ---
- 
+
 ## Descripción del sistema
- 
+
 Este proyecto implementa una arquitectura distribuida compuesta por:
- 
+
 - Un **servidor principal (C)** que gestiona la lógica del juego
 - Un **servicio de autenticación (Python)** independiente
 - Clientes en múltiples lenguajes (**Python y C**)
-- Resolución de nombres mediante un mini-servidor DNS propio
- 
+- Resolución de nombres (simulación tipo DNS)
+
 El sistema cumple con principios reales de Internet:
- 
-- No se usan direcciones IP hardcodeadas
-- La autenticación está desacoplada del servidor de juego
-- Soporta múltiples clientes concurrentes
-- Comunicación basada en un protocolo propio (CDSP)
- 
+
+- No se usan direcciones IP hardcodeadas  
+- La autenticación está desacoplada  
+- Soporta múltiples clientes concurrentes  
+- Comunicación basada en un protocolo propio  
+
 ---
- 
-## Estructura del proyecto
- 
+
+## Estructura del proyecto (En progreso)
+
 ```
 cdsp-game/
-├── server/
-│   ├── main.c
-│   ├── game.c / game.h
-│   ├── protocol.c / protocol.h
-│   ├── dns_server.c / dns_server.h
-│   └── Makefile
-├── client-python/
-│   ├── client.py
-│   ├── network.py
-│   └── gui.py
-├── auth-server/
-│   ├── auth_server.py
-│   └── users.json
-├── auth-cliente-c/
-│   └── client.c
+├── server/ # Servidor principal (C)
+│ ├── main.c
+│ ├── game.c / game.h
+│ ├── protocol.c / protocol.h
+│ ├── dns_server.c / dns_server.h
+│ ├── Makefile
+│ └── logs.txt
+│
+├── client-python/ # Cliente en Python
+│ ├── client.py
+│ ├── network.py
+│ └── gui.py
+│
+├── auth-server/ # Servicio de autenticación
+│ ├── auth_server.py
+│ └── users.json
+│
+├── auth-cliente-c/ # Cliente en C
+│ └── client.c
+│
+├── .env
 ├── .env.example
 ├── run.sh
 └── README.md
 ```
- 
+
 ---
- 
+
 ## Requisitos previos
- 
+
 ### Ubuntu / Linux
- 
+
 ```bash
 sudo apt update
-sudo apt install gcc make python3 python3-tk -y
+sudo apt install gcc make -y
 ```
- 
+
 Verificar instalación:
- 
+
 ```bash
 gcc --version
 make --version
-python3 --version
 ```
- 
+
 ### Windows
- 
-En Windows necesitas instalar WSL (Windows Subsystem for Linux), que te da una terminal Ubuntu dentro de Windows.
- 
+
+En Windows necesitas instalar WSL (Windows Subsystem for Linux), que te da una terminal Ubuntu dentro de Windows. Es la forma más simple y recomendada.
+
 **Paso 1 — Activar WSL**
- 
+
 Abre PowerShell como administrador y ejecuta:
- 
+
 ```powershell
 wsl --install
 ```
- 
+
 Reinicia el equipo cuando te lo pida.
- 
+
 **Paso 2 — Abrir Ubuntu**
- 
+
 Busca "Ubuntu" en el menú de inicio. La primera vez te pedirá crear un usuario y contraseña.
- 
-**Paso 3 — Instalar dependencias dentro de Ubuntu (WSL)**
- 
+
+**Paso 3 — Instalar gcc y make dentro de Ubuntu (WSL)**
+
 ```bash
 sudo apt update
-sudo apt install gcc make python3 python3-tk -y
+sudo apt install gcc make -y
 ```
- 
+
+Verificar:
+
+```bash
+gcc --version
+make --version
+```
+
 > A partir de aquí todos los comandos son iguales para Ubuntu y WSL.
- 
+
 ---
- 
-## Configuración inicial
- 
-**1. Clonar el repositorio:**
- 
+
+## Clonar el repositorio
+
 ```bash
-git clone https://github.com/JuanJo0607/cdsp-Game.git
-cd cdsp-Game
+git clone https://github.com/TU_USUARIO/cdsp-game.git
+cd cdsp-game
 ```
- 
-**2. Crear el archivo `.env`:**
- 
-```bash
-cp .env.example .env
-```
- 
-**3. Dar permisos al script de arranque:**
- 
-```bash
-chmod +x run.sh
-```
- 
+
+> Reemplaza `TU_USUARIO` con el usuario de GitHub del equipo.
+
 ---
- 
-## Cómo ejecutar el juego completo
- 
-El juego requiere tres componentes corriendo al mismo tiempo. Abre **tres terminales**.
- 
-**Terminal 1 — Auth server:**
-```bash
-cd auth-server
-python3 auth_server.py
-```
- 
-Deberías ver:
-```
-Auth server iniciado en puerto 9090
-Usuarios cargados: ['andres', 'juan']
-```
- 
-**Terminal 2 — DNS + Servidor principal:**
-```bash
-./run.sh
-```
- 
-Deberías ver:
-```
-DNS: Servidor escuchando en puerto 5354
-DNS: Registro exitoso
-Servidor escuchando en puerto 8080...
-```
- 
-**Terminal 3 — Cliente Python (repetir para cada jugador):**
-```bash
-python3 client-python/client.py
-```
- 
-Se abrirá una ventana gráfica. Ingresa un usuario y haz clic en **Conectar**.
- 
----
- 
-## Usuarios disponibles
- 
-| Usuario | Rol |
-|---------|-----|
-| `juan` | Atacante |
-| `andres` | Defensor |
- 
----
- 
-## Flujo del juego
- 
-1. El **atacante** se conecta, crea una sala y entra
-2. El **defensor** se conecta, lista las salas y entra a la misma sala
-3. El **atacante** explora el plano usando las flechas de movimiento
-4. Cuando el **atacante** esté cerca de un recurso, usa **SCAN** para detectarlo
-5. El **atacante** se mueve a la celda exacta del recurso y presiona **ATTACK**
-6. El **defensor** recibe una notificación de ataque — el recurso se marca en amarillo
-7. El **defensor** se mueve a la celda del recurso y presiona **MITIGATE**
-8. El recurso se marca en azul — ataque mitigado
- 
-### Recursos críticos en el plano
- 
-| Recurso | Posición |
-|---------|----------|
-| `srv_01` | 5, 5 |
-| `srv_02` | 15, 15 |
- 
-### Condición de victoria
- 
-- **Atacante gana** si compromete los 2 servidores sin que sean mitigados
-- **Defensor gana** si mitiga todos los ataques
- 
----
- 
-## Compilar el servidor manualmente
- 
-Si necesitas recompilar el servidor sin usar `run.sh`:
- 
+
+## Compilar el servidor
+
 ```bash
 cd server
-make clean
 make
 ```
- 
----
- 
-## Probar el servidor con netcat
- 
-Para pruebas rápidas sin la GUI:
- 
+
+Si todo está bien verás algo como:
+
+```
+gcc -Wall -pthread -o server main.c
+```
+
+Para limpiar los archivos compilados:
+
 ```bash
-nc localhost 8080
+make clean
 ```
- 
-Comandos disponibles:
-```
-AUTH juan
-CREATE_ROOM
-LIST_ROOMS
-JOIN room_001 attacker
-MOVE 1 0
-SCAN
-ATTACK srv_01
-QUIT
-```
- 
+
 ---
- 
+
+## Correr el servidor
+
+```bash
+./server <puerto> <archivoDeLogs>
+```
+
+Ejemplo:
+
+```bash
+./server 8080 logs.txt
+```
+
+Deberías ver:
+
+```
+Servidor escuchando en puerto 8080...
+```
+
+---
+
+## Probar el servidor
+
+Abre **otra terminal** (o pestaña) y ejecuta:
+
+```bash
+echo "Hola Servidor | nc localhost 8080
+```
+
+En la terminal del servidor deberías ver el mensaje recibido.  
+En esta terminal deberías ver la respuesta del servidor.
+
+---
+
 ## Ver los logs
- 
+
+Los logs se guardan en el archivo que pasaste como segundo argumento:
+
 ```bash
-cat server/logs.txt
+cat logs.txt
 ```
- 
+
 ---
- 
+
 ## Problemas comunes
- 
-**`make: command not found`**
+
+**`make: command not found`**  
 → Ejecuta `sudo apt install make -y`
- 
-**`bind: Address already in use`**
-→ El puerto ya está en uso. Espera unos segundos y vuelve a intentarlo, o cambia el puerto en `.env`
- 
-**`nc: command not found`**
+
+**`bind: Address already in use`**  
+→ El puerto ya está en uso. Cambia el puerto o espera un momento y vuelve a intentarlo:
+```bash
+./server 8081 logs.txt
+```
+
+**`nc: command not found`** (para las pruebas)  
 → Instala netcat: `sudo apt install netcat -y`
- 
-**El cliente dice `DNS WARNING: Falló resolución UDP`**
-→ El DNS no está corriendo. Usa `./run.sh` en vez de arrancar el servidor manualmente
- 
-**El defensor no ve las salas al listar**
-→ Asegúrate de que el atacante ya haya creado la sala y entrado a ella antes de que el defensor liste
+
+---
+
+## Micro-Servicio DNS (UDP)
+
+Para cumplir con el **Requerimiento 3** (sin IPs hardcodeadas), hemos implementado un mini-servidor DNS que resuelve nombres como `server.cdsp`.
+
+### Cómo usar el DNS
+1. Compila los servidores: `cd server && make`
+2. Ejecuta el servidor DNS en una terminal:
+   ```bash
+   ./dns_server 5354
+   ```
+3. Ejecuta el servidor de juego en otra terminal:
+   ```bash
+   ./server 8080 logs.txt
+   ```
+4. En el cliente Python, usa `server.cdsp` en el campo "Server Host". El cliente resolverá automáticamente la IP vía UDP antes de conectar por TCP.
+
+---
+
+## Cliente Gráfico (Python)
+
+El proyecto incluye un cliente con interfaz gráfica para una experiencia de juego completa.
+
+### Requisitos
+- Python 3.x
+- Tkinter (usualmente incluido en Python)
+  
+```bash
+sudo apt install python3-tk
+```
+
+
+### Cómo ejecutar el cliente
+1. Asegúrate de que el servidor esté corriendo en WSL/Linux.
+2. En Linux (o Windows), abre una terminal y navega a la carpeta del proyecto.
+3. Ejecuta:
+
+   ```bash
+   python client-python/client.py
+   ```
+
+---
+### Condición de Victoria
+- **Atacante**: Gana si logra comprometer los 2 servidores del sistema.
+- **Defensor**: Gana si logra evitar que comprometan los servidores durante **5 minutos** (Tiempo global de partida).
+
+
+---
+
+
