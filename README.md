@@ -1,7 +1,26 @@
 # CDSP Game — Cyber Defense Simulation Protocol
 
-Juego multijugador de simulación de ciberseguridad.  
-Internet: Arquitectura y Protocolos · 2026-1
+Juego multijugador distribuido para simulación de ciberseguridad, desarrollado como parte del curso **Internet: Arquitectura y Protocolos (2026-1)**.
+
+El sistema simula un entorno de red donde múltiples jugadores interactúan en tiempo real asumiendo roles de **Atacante** o **Defensor**, utilizando protocolos de comunicación diseñados e implementados sobre sockets.
+
+---
+
+## Descripción del sistema
+
+Este proyecto implementa una arquitectura distribuida compuesta por:
+
+- Un **servidor principal (C)** que gestiona la lógica del juego
+- Un **servicio de autenticación (Python)** independiente
+- Clientes en múltiples lenguajes (**Python y C**)
+- Resolución de nombres (simulación tipo DNS)
+
+El sistema cumple con principios reales de Internet:
+
+- No se usan direcciones IP hardcodeadas  
+- La autenticación está desacoplada  
+- Soporta múltiples clientes concurrentes  
+- Comunicación basada en un protocolo propio  
 
 ---
 
@@ -9,15 +28,29 @@ Internet: Arquitectura y Protocolos · 2026-1
 
 ```
 cdsp-game/
-├── server/
-│   ├── main.c
-│   ├── protocol.c
-│   ├── protocol.h
-│   ├── game.c
-│   ├── game.h
-│   └── Makefile
-├── client-python/
-│   └── client.py
+├── server/ # Servidor principal (C)
+│ ├── main.c
+│ ├── game.c / game.h
+│ ├── protocol.c / protocol.h
+│ ├── dns_server.c / dns_server.h
+│ ├── Makefile
+│ └── logs.txt
+│
+├── client-python/ # Cliente en Python
+│ ├── client.py
+│ ├── network.py
+│ └── gui.py
+│
+├── auth-server/ # Servicio de autenticación
+│ ├── auth_server.py
+│ └── users.json
+│
+├── auth-cliente-c/ # Cliente en C
+│ └── client.c
+│
+├── .env
+├── .env.example
+├── run.sh
 └── README.md
 ```
 
@@ -51,7 +84,7 @@ Abre PowerShell como administrador y ejecuta:
 wsl --install
 ```
 
-Reinicia el equipo si te lo piden.
+Reinicia el equipo cuando te lo pida.
 
 **Paso 2 — Abrir Ubuntu**
 
@@ -78,25 +111,12 @@ make --version
 ## Clonar el repositorio
 
 ```bash
-git clone https://github.com/JuanJo0607/cdsp-Game.git
-cd cdsp-Game
+git clone https://github.com/TU_USUARIO/cdsp-game.git
+cd cdsp-game
 ```
-### Bajar todas las ramas del repositorio al local
-```bash
-git branch -r | grep -v '\->' | grep -v 'HEAD' | while read remote; do git checkout --track "$remote"; done
-```
-Ahora verifica si todas las ramas del repositorio se bajaron correctamente:
-```bash
-git branch 
-```
-Si todo salió bien, deberás ver algo como lo siguiente:
-```bash
-  auth-cliente-c
-  cliente-python
-  dev
-* main
-  server
-```
+
+> Reemplaza `TU_USUARIO` con el usuario de GitHub del equipo.
+
 ---
 
 ## Compilar el servidor
@@ -109,7 +129,7 @@ make
 Si todo está bien verás algo como:
 
 ```
-gcc -Wall -pthread -o server main.c protocol.c game.c
+gcc -Wall -pthread -o server main.c
 ```
 
 Para limpiar los archivos compilados:
@@ -118,17 +138,9 @@ Para limpiar los archivos compilados:
 make clean
 ```
 
-## Activa el DNS 
-
-El servidor DNS debe ejecutarse antes del servidor principal:
-
-```bash
-./dns_server 5353
-```
 ---
 
-## Correr el servidor manualmente
-
+## Correr el servidor
 
 ```bash
 ./server <puerto> <archivoDeLogs>
@@ -148,49 +160,16 @@ Servidor escuchando en puerto 8080...
 
 ---
 
-## Ejecución automática (server)
-
-```bash
-chmod +x run.sh
-./run.sh
-```
-Este script:
-
-Compila el servidor
-Inicia el DNS
-Espera a que esté listo
-Inicia el servidor principal
-Carga configuración desde .env
-
-
-
 ## Probar el servidor
 
-Abre **otra terminal** y conéctate con:
+Abre **otra terminal** (o pestaña) y ejecuta:
 
 ```bash
-nc localhost 8080
+echo "Hola Servidor | nc localhost 8080
 ```
 
-Una vez conectado puedes enviar comandos del protocolo CDSP uno por uno:
-
-```
-AUTH juanito
-CREATE_ROOM
-LIST_ROOMS
-JOIN room_001 atacante
-QUIT
-```
-
-Respuestas esperadas:
-
-```
-OK AUTH "juanito" ROLE=atacante
-OK CREATE_ROOM room_001
-OK LIST_ROOMS 1 room_001
-OK JOIN room_001 ROLE=atacante POS=0,0
-OK QUIT
-```
+En la terminal del servidor deberías ver el mensaje recibido.  
+En esta terminal deberías ver la respuesta del servidor.
 
 ---
 
@@ -210,13 +189,12 @@ cat logs.txt
 → Ejecuta `sudo apt install make -y`
 
 **`bind: Address already in use`**  
-→ El puerto ya está en uso. Cambia el puerto o espera un momento:
-
+→ El puerto ya está en uso. Cambia el puerto o espera un momento y vuelve a intentarlo:
 ```bash
 ./server 8081 logs.txt
 ```
 
-**`nc: command not found`**  
+**`nc: command not found`** (para las pruebas)  
 → Instala netcat: `sudo apt install netcat -y`
 
 ---
@@ -246,6 +224,7 @@ El proyecto incluye un cliente con interfaz gráfica para una experiencia de jue
 ### Requisitos
 - Python 3.x
 - Tkinter (usualmente incluido en Python)
+  
 ```bash
 sudo apt install python3-tk
 ```
@@ -261,27 +240,7 @@ sudo apt install python3-tk
    ```
 
 ---
-
-## Reglas del Juego 
-
-
-### 1. Ataque y Mitigación (Temporizador de 30s)
-- **Ataque**: Una vez que un atacante llega a la celda de un servidor y usa `ATTACK`, comienza una cuenta atrás de **30 segundos**.
-- **Mitigación**: El defensor recibe una notificación y debe llegar a la celda para usar `MITIGATE` antes de que se acabe el tiempo.
-- **Compromiso**: Si pasan los 30 segundos sin mitigación, el recurso se pierde (se vuelve negro en el mapa).
-
-### 2. Condición de Victoria
+### Condición de Victoria
 - **Atacante**: Gana si logra comprometer los 2 servidores del sistema.
 - **Defensor**: Gana si logra evitar que comprometan los servidores durante **5 minutos** (Tiempo global de partida).
-
-
----
-
-##  Notas de Desarrollo (Provisional)
-
-> [!NOTE]
-> Algunos comportamientos son **temporales**:
-> 
-> **Autenticación con prefijos**: El uso de `atacante_` o `defensor_` para asignar roles en el nombre del usuario es una medida provisional. En la versión final, el rol se recibirá directamente desde el servicio de identidad externo.
-
 
