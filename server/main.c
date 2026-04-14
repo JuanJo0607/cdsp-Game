@@ -20,6 +20,47 @@ typedef struct {
 } ClienteInfo;
 
 
+void registrar_en_dns(int server_port) {
+    const char *dns_host = getenv("DNS_SERVER");
+    const char *dns_port_str = getenv("DNS_PORT");
+
+    if (!dns_host) dns_host = "127.0.0.1";
+    if (!dns_port_str) dns_port_str = "5354";
+
+    int sockfd;
+    struct sockaddr_in servaddr;
+
+    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sockfd < 0) return;
+
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(atoi(dns_port_str));
+    servaddr.sin_addr.s_addr = inet_addr(dns_host);
+
+    char reg[128];
+    snprintf(reg, sizeof(reg), "REGISTER server.cdsp %d", server_port);
+    sendto(sockfd, reg, strlen(reg), 0, (const struct sockaddr *)&servaddr, sizeof(servaddr));
+
+    // Esperar confirmación
+    char buffer[128];
+    struct sockaddr_in from;
+    socklen_t fromlen = sizeof(from);
+    struct timeval tv = {2, 0};
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+
+    int n = recvfrom(sockfd, buffer, sizeof(buffer) - 1, 0, (struct sockaddr *)&from, &fromlen);
+    if (n > 0) {
+        buffer[n] = '\0';
+        printf("DNS: Registro exitoso — %s\n", buffer);
+    } else {
+        printf("DNS: Sin respuesta del servidor DNS\n");
+    }
+
+    close(sockfd);
+}
+
+
 // Consulta el rol de un usuario al auth server
 // Retorna 0 si encontró el usuario, -1 si no
 int consultar_auth_server(const char *username, char *rol_out) {
@@ -347,6 +388,7 @@ int main(int argc, char *argv[]) {
 
     // Inicializar estado del juego
     game_init();
+    registrar_en_dns(puerto);
 
     // Bucle principal: acepta clientes indefinidamente
     while (1) {
